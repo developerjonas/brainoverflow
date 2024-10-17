@@ -105,6 +105,8 @@
 
   <!-- Custom styles for this template -->
   <link href="offcanvas-navbar.css" rel="stylesheet" />
+  <link href="headers.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-body-tertiary">
@@ -221,7 +223,7 @@
             <a class="nav-link" href="about.php">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="threads.php">Threads</a>
+            <a class="nav-link" href="threadlist.php">Threads</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Switch account</a>
@@ -241,16 +243,27 @@
             </ul>
           </li>
         </ul>
+
         <form class="d-flex" role="search">
-          <input
-            class="form-control me-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search" />
-          <button class="btn btn-outline-success" type="submit">
-            Search
-          </button>
+          <button type="button" class="btn btn-outline-success me-2">Login</button>
+          <button type="button" class="btn btn-outline-dark me-2">Login</button>
+          <button type="button" class="btn btn-success">Signup</button>
         </form>
+
+        <div class="flex-shrink-0 dropdown">
+          <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu text-small shadow">
+            <li><a class="dropdown-item" href="#">New project...</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#">Sign out</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </nav>

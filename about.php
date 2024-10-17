@@ -221,7 +221,7 @@
             <a class="nav-link active" aria-current="page" href="about.php">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="threads.php">Threads</a>
+            <a class="nav-link" href="threadlist.php">Threads</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Switch account</a>

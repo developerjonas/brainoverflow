@@ -15,7 +15,7 @@ while($row = mysqli_fetch_assoc($result)){
                 <div class="card-body">
                 <h5 class="card-title">'.$cat_name.'</h5>
                 <p class="card-text">'.$cat_desc.'</p>
-                <a href="threads.php?cat_id='.$cat_id.'" class="btn btn-primary">Go</a>
+                <a href="threadlist.php?cat_id='.$cat_id.'" class="btn btn-primary">Go</a>
                 </div>
             </div>
         </div>        

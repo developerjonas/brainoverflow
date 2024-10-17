@@ -63,7 +63,7 @@ if (isset($_GET['cat_id'])) {
 } else {
     echo "Invalid category ID";
 } -->
-
+<!-- 
 
 
 <div class="nav-scroller bg-body shadow-sm">
@@ -82,3 +82,6 @@ if (isset($_GET['cat_id'])) {
     <a class="nav-link" href="#">Link</a>
   </nav>
 </div>
+
+
+<h5 class="mt-0">'.$th_title'.</h5> -->

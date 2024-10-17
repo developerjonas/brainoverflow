@@ -1,5 +1,5 @@
 <?php
-    require 'partials/_redirect.php';
+require 'partials/_redirect.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -223,7 +223,7 @@
                         <a class="nav-link" href="about.php">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="threads.php">Threads</a>
+                        <a class="nav-link active" aria-current="page" href="threadlist.php">Threads</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a
@@ -258,17 +258,41 @@
     <main class="container">
 
         <?php
-        require 'partials/_threads.php';
+        require 'partials/_threadlist.php';
         ?>
+        <hr>
+        <?php
 
-        <div class="d-flex align-items-center border-primary">
-            <div class="flex-shrink-0">
+        $cat_id = $_GET['cat_id'];
+        $sql = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id";
+        $results = mysqli_query($conn, $sql);
+
+        while ($row = mysqli_fetch_assoc($results)) {
+            $th_id = $row['th_id'];
+            $th_name = $row['th_name'];
+            $th_desc = $row['th_desc'];
+            echo '
+        <div class="d-flex align-items-center border-primary ">
+            <div class="flex-shrink-0 ">
                 <img src="..." alt="...">
             </div>
+            <a class="text-dark text-decoration-none" href="thread.php?th_id='.$th_id.'">
             <div class="flex-grow-1 ms-3">
-                This is some content from a media component. You can replace this with any content and adjust it as needed.
+            <h5 class="mt-0">' . $th_name . '</h5>
+                ' . $th_desc . '
             </div>
+
         </div>
+        </a>
+        
+        <hr>
+';
+        }
+
+
+
+
+        ?>
     </main>
 
     <?php
@@ -281,3 +305,4 @@
 </body>
 
 </html>
+
