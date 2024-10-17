@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
   <head>
-    <script src="../assets/js/color-modes.js"></script>
+    <script src="assets/js/color-modes.js"></script>
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,7 +23,7 @@
       href="https://cdn.jsdelivr.net/npm/@docsearch/css@3"
     />
 
-    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
 
     <style>
       .bd-placeholder-img {
@@ -227,14 +227,13 @@
             <li class="nav-item">
               <a class="nav-link" href="#">Dashboard</a>
             </li>
-
             <li class="nav-item">
-              <a class="nav-link" href="discussion.html">Discussion</a>
+              <a class="nav-link active" aria-current="page" href="discussion.html"
+                >Discussion</a
+              >
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="about.html"
-                >About</a
-              >
+              <a class="nav-link" href="about.php">About</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Switch account</a>
@@ -271,10 +270,35 @@
       </div>
     </nav>
 
+    <div class="nav-scroller bg-body shadow-sm">
+      <nav class="nav" aria-label="Secondary navigation">
+        <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+        <a class="nav-link" href="#">
+          Friends
+          <span class="badge text-bg-light rounded-pill align-text-bottom"
+            >27</span
+          >
+        </a>
+        <a class="nav-link" href="#">Explore</a>
+        <a class="nav-link" href="#">Suggestions</a>
+        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link" href="#">Link</a>
+      </nav>
+    </div>
 
     <main class="container">
+      
+
       <div class="container my-4">
-        <h1>About brainoverflow</h1>
+        <h1>Welcome to brainoverflow</h1>
+      </div>
+      <div class="row">
+        <?php
+          require 'partials/_discussion.php';
+        ?>
       </div>
     </main>
 
@@ -314,7 +338,7 @@
         </ul>
       </footer>
     </div>
-    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="offcanvas-navbar.js"></script>
   </body>
