@@ -1,5 +1,18 @@
 <?php
-require 'partials/_redirect.php';
+// require 'partials/_redirect.php';
+?>
+<?php
+require 'partials/database/_connect.php';
+$method = $_SERVER['REQUEST_METHOD'];
+$cat_id = $_GET['cat_id'];
+if ($method == "POST") {
+    // INSERT THREAD INTO DATABASE...
+    $user_id = '0';
+    $th_title = $_POST['concern_title'];
+    $th_desc = $_POST['concern_desc'];
+    $insert = "INSERT INTO `threads` (`th_name`, `th_desc`, `th_ct_id`, `th_user_id`, `th_dt`) VALUES('$th_title', '$th_desc', '$cat_id', '$user_id', current_timestamp())";
+    $result = mysqli_query($conn, $insert);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -25,87 +38,7 @@ require 'partials/_redirect.php';
         href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
 
     <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-
-        .b-example-divider {
-            width: 100%;
-            height: 3rem;
-            background-color: rgba(0, 0, 0, 0.1);
-            border: solid rgba(0, 0, 0, 0.15);
-            border-width: 1px 0;
-            box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-                inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
-        }
-
-        .b-example-vr {
-            flex-shrink: 0;
-            width: 1.5rem;
-            height: 100vh;
-        }
-
-        .bi {
-            vertical-align: -0.125em;
-            fill: currentColor;
-        }
-
-        .nav-scroller {
-            position: relative;
-            z-index: 2;
-            height: 2.75rem;
-            overflow-y: hidden;
-        }
-
-        .nav-scroller .nav {
-            display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
-            text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .btn-bd-primary {
-            --bd-violet-bg: #712cf9;
-            --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-            --bs-btn-font-weight: 600;
-            --bs-btn-color: var(--bs-white);
-            --bs-btn-bg: var(--bd-violet-bg);
-            --bs-btn-border-color: var(--bd-violet-bg);
-            --bs-btn-hover-color: var(--bs-white);
-            --bs-btn-hover-bg: #6528e0;
-            --bs-btn-hover-border-color: #6528e0;
-            --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-            --bs-btn-active-color: var(--bs-btn-hover-color);
-            --bs-btn-active-bg: #5a23c8;
-            --bs-btn-active-border-color: #5a23c8;
-        }
-
-        .bd-mode-toggle {
-            z-index: 1500;
-        }
-
-        .bd-mode-toggle .dropdown-menu .active .bi {
-            display: block !important;
-        }
-    </style>
-
+    <link href="assets/style.css" rel="stylesheet" />
     <!-- Custom styles for this template -->
     <link href="offcanvas-navbar.css" rel="stylesheet" />
 </head>
@@ -260,14 +193,31 @@ require 'partials/_redirect.php';
         <?php
         require 'partials/_threadlist.php';
         ?>
+
+        <hr>
+        <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="POST">
+            <div class="mb-3">
+                <label for="concern_title" class="form-label">Concern</label>
+                <input type="text" class="form-control" id="concern_title" name="concern_title" placeholder="keep your concern short and crisp as possible">
+            </div>
+            <div class="mb-3">
+                <label for="concern_desc" class="form-label">Elaborate your concern</label>
+                <textarea class="form-control" id="concern_desc" name="concern_desc" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Success</button>
+        </form>
+
         <hr>
         <?php
 
         $cat_id = $_GET['cat_id'];
         $sql = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id";
         $results = mysqli_query($conn, $sql);
+        $no_result = true;
 
         while ($row = mysqli_fetch_assoc($results)) {
+            $no_result = false;
             $th_id = $row['th_id'];
             $th_name = $row['th_name'];
             $th_desc = $row['th_desc'];
@@ -276,23 +226,27 @@ require 'partials/_redirect.php';
             <div class="flex-shrink-0 ">
                 <img src="..." alt="...">
             </div>
-            <a class="text-dark text-decoration-none" href="thread.php?th_id='.$th_id.'">
+            <a class="text-body text-decoration-none" href="thread.php?th_id=' . $th_id . '">
             <div class="flex-grow-1 ms-3">
             <h5 class="mt-0">' . $th_name . '</h5>
                 ' . $th_desc . '
-            </div>
-
-        </div>
-        </a>
-        
-        <hr>
-';
+            </div></div></a><hr>';
         }
 
+        if ($no_result) {
 
-
-
+            echo '<div class="container my-5">
+            <div class="p-5 text-center  bg-body-tertiary rounded-3">
+                <div class="container"></div>
+                <h1 class="text-body-emphasis">No discussions yet</h1>
+                <p class="lead">
+                    Be the <code>first person</code>, to start a discussion...
+                </p>
+            </div>
+        </div>';
+        }
         ?>
+
     </main>
 
     <?php
@@ -305,4 +259,3 @@ require 'partials/_redirect.php';
 </body>
 
 </html>
-

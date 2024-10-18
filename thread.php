@@ -1,3 +1,15 @@
+<?php
+require 'partials/database/_connect.php';
+$method = $_SERVER['REQUEST_METHOD'];
+$th_id = $_GET['th_id'];
+if ($method == "POST") {
+    // INSERT THREAD INTO DATABASE...
+    $user_id = '0';
+    $cmt_cnt = $_POST['cmt_cnt'];
+    $insert = "INSERT INTO `comments` (`cmt_cnt`,`th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$th_id', current_timestamp())";
+    $result = mysqli_query($conn, $insert);
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -23,86 +35,11 @@
         href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
 
     <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/style.css" rel="stylesheet" />
 
     <style>
-        
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
-        }
 
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
 
-        .b-example-divider {
-            width: 100%;
-            height: 3rem;
-            background-color: rgba(0, 0, 0, 0.1);
-            border: solid rgba(0, 0, 0, 0.15);
-            border-width: 1px 0;
-            box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-                inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
-        }
-
-        .b-example-vr {
-            flex-shrink: 0;
-            width: 1.5rem;
-            height: 100vh;
-        }
-
-        .bi {
-            vertical-align: -0.125em;
-            fill: currentColor;
-        }
-
-        .nav-scroller {
-            position: relative;
-            z-index: 2;
-            height: 2.75rem;
-            overflow-y: hidden;
-        }
-
-        .nav-scroller .nav {
-            display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
-            text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .btn-bd-primary {
-            --bd-violet-bg: #712cf9;
-            --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-            --bs-btn-font-weight: 600;
-            --bs-btn-color: var(--bs-white);
-            --bs-btn-bg: var(--bd-violet-bg);
-            --bs-btn-border-color: var(--bd-violet-bg);
-            --bs-btn-hover-color: var(--bs-white);
-            --bs-btn-hover-bg: #6528e0;
-            --bs-btn-hover-border-color: #6528e0;
-            --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-            --bs-btn-active-color: var(--bs-btn-hover-color);
-            --bs-btn-active-bg: #5a23c8;
-            --bs-btn-active-border-color: #5a23c8;
-        }
-
-        .bd-mode-toggle {
-            z-index: 1500;
-        }
-
-        .bd-mode-toggle .dropdown-menu .active .bi {
-            display: block !important;
-        }
     </style>
 
     <!-- Custom styles for this template -->
@@ -256,6 +193,84 @@
 
     <main class="container">
 
+        <?php
+
+        $th_id = $_GET['th_id'];
+        $sql = "SELECT * FROM `threads` WHERE th_id=$th_id";
+        $results = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_assoc($results);
+        $th_title = $row['th_name'];
+        $th_desc = $row['th_desc'];
+        // echo 'thread comes here';
+        // echo $th_title;
+        // echo $th_desc;
+        echo ' <div class="d-flex align-items-center p-3 my-3 text-white bg-dark rounded shadow-sm">
+            <img class="me-3" src="/docs/5.3/assets/brand/bootstrap-logo-white.svg" alt="" width="48" height="38">
+            <div class="lh-1">
+                <h1 class="h6 mb-0 text-white lh-1">' . $th_title . '</h1>
+                <small>' . $th_desc . '</small>
+            </div>
+        </div>'
+
+        ?>
+
+        <hr>
+        <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="POST">
+            <div class="mb-3">
+                <label for="concern_desc" class="form-label">Comment</label>
+                <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+
+        <div class="my-3 p-3 bg-body rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0">Recent comments</h6>
+            <?php
+
+            $th_id = $_GET['th_id'];
+            $sql = "SELECT * FROM `comments` WHERE th_id=$th_id";
+            $results = mysqli_query($conn, $sql);
+            $no_result = true;
+
+            while ($row = mysqli_fetch_assoc($results)) {
+                $no_result = false;
+                // $cmt_ = $row['th_id'];
+                $cmt_cnt = $row['cmt_cnt'];
+                $cmt_dt = $row['cmt_dt'];
+                echo '<div class="d-flex text-body-secondary pt-3">
+                <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <title>Placeholder</title>
+                    <rect width="100%" height="100%" fill="#007bff" /><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text>
+                </svg>
+                <p class="pb-3 mb-0 small lh-sm border-bottom">
+                    <strong class="d-block text-gray-dark">@username at ' . $cmt_dt . '</strong>
+                    ' . $cmt_cnt . '
+                </p>
+            </div>';
+            }
+            if ($no_result) {
+                echo '<div class="container my-5">
+        <div class="p-5 text-center  bg-body-tertiary rounded-3">
+            <div class="container"></div>
+            <h1 class="text-body-emphasis">No discussions yet</h1>
+            <p class="lead">
+                Be the <code>first person</code>, to comment...
+            </p>
+        </div>
+    </div>';
+            }
+            ?>
+
+
+
+
+            <small class="d-block text-end mt-3">
+                <a href="#">All updates</a>
+            </small>
+        </div>
+
+        <hr>
     </main>
 
     <?php
