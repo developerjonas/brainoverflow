@@ -1,5 +1,5 @@
 <?php
-
+$alert = "false";
 if($_SERVER['REQUEST_METHOD'] == "POST"){
     include '../database/_connect.php';
     $username = $_POST['username'];
@@ -14,7 +14,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     $num_rows = mysqli_num_rows($ae_result);
     if($num_rows > 0){
         $alert = "Email already in use";
-
     }
     else{
         if($pass = $c_pass){
@@ -23,12 +22,14 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $result = mysqli_query($conn, $sql);
             if($result){
                 $alert = true;
+                header("Location: ../../index.php?signupsuccess=true");
+                exit();
             }
 
         }
         else{
-            $slert = "Password must be same";
+            $alert = "Password must be same";
         }
     }
-
+    header("Location: ../../index.php?signupsuccess=false&error=$alert");
 }
