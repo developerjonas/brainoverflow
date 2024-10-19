@@ -129,6 +129,8 @@ session_start();
     aria-label="Main navigation">
     <?php require 'partials/_header.php'; ?>
   </nav>
+  <?php
+  include 'partials/_categories.php' ?>
 
   <main class="container">
 

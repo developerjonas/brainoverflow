@@ -10,7 +10,11 @@ if ($method == "POST") {
     // INSERT THREAD INTO DATABASE...
     $user_id = '0';
     $th_title = $_POST['concern_title'];
+    $th_title = str_replace("<", "&lt;" , $th_title);
+    $th_title = str_replace(">", "&gt;" , $th_title);
     $th_desc = $_POST['concern_desc'];
+    $th_desc = str_replace("<", "&lt;" , $th_desc);
+    $th_desc = str_replace(">", "&gt;" , $th_desc);
     $insert = "INSERT INTO `threads` (`th_name`, `th_desc`, `th_ct_id`, `th_user_id`, `th_dt`) VALUES('$th_title', '$th_desc', '$cat_id', '$user_id', current_timestamp())";
     $result = mysqli_query($conn, $insert);
 }

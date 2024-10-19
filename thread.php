@@ -9,6 +9,8 @@ if ($method == "POST") {
     // INSERT THREAD INTO DATABASE...
     $user_id = '0';
     $cmt_cnt = $_POST['cmt_cnt'];
+    $cmt_cnt = str_replace("<", "&lt;" , $cmt_cnt);
+    $cmt_cnt = str_replace(">", "&gt;" , $cmt_cnt);
     $sno = $_POST['sno'];
     $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
     $result = mysqli_query($conn, $insert);
