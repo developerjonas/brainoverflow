@@ -1,4 +1,7 @@
 <?php
+session_start();
+?>
+<?php
 require 'partials/database/_connect.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $th_id = $_GET['th_id'];
@@ -6,7 +9,8 @@ if ($method == "POST") {
     // INSERT THREAD INTO DATABASE...
     $user_id = '0';
     $cmt_cnt = $_POST['cmt_cnt'];
-    $insert = "INSERT INTO `comments` (`cmt_cnt`,`th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$th_id', current_timestamp())";
+    $sno = $_POST['sno'];
+    $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
     $result = mysqli_query($conn, $insert);
 }
 ?>
@@ -133,10 +137,10 @@ if ($method == "POST") {
     </div>
 
     <nav
-    class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark"
-    aria-label="Main navigation">
-    <?php require 'partials/_header.php'; ?>
-  </nav>
+        class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark"
+        aria-label="Main navigation">
+        <?php require 'partials/_header.php'; ?>
+    </nav>
 
 
     <main class="container">
@@ -149,13 +153,18 @@ if ($method == "POST") {
         $row = mysqli_fetch_assoc($results);
         $th_title = $row['th_name'];
         $th_desc = $row['th_desc'];
+        $th_user_id = $row['th_user_id'];
+        $sql_03 = "SELECT username FROM `users` WHERE sno=$th_user_id";
+        $result = mysqli_query($conn, $sql_03);
+        $row_03 = mysqli_fetch_assoc($result);
+        $th_user = $row_03['username'];
         // echo 'thread comes here';
         // echo $th_title;
         // echo $th_desc;
         echo ' <div class="d-flex align-items-center p-3 my-3 text-white bg-dark rounded shadow-sm">
             <img class="me-3" src="/docs/5.3/assets/brand/bootstrap-logo-white.svg" alt="" width="48" height="38">
             <div class="lh-1">
-                <h1 class="h6 mb-0 text-white lh-1">' . $th_title . '</h1>
+                <h1 class="h6 mb-0 text-white lh-1">' . $th_title . ' by ' . $th_user . '</h1>
                 <small>' . $th_desc . '</small>
             </div>
         </div>'
@@ -163,14 +172,24 @@ if ($method == "POST") {
         ?>
 
         <hr>
-        <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="POST">
+
+        <?php
+        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
+            echo '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
             <div class="mb-3">
+                
+<input type="hidden" name="sno" id="sno" value="' . $_SESSION["sno"] . '">
                 <label for="concern_desc" class="form-label">Comment</label>
                 <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
             </div>
-
             <button type="submit" class="btn btn-success">Submit</button>
-        </form>
+        </form>';
+        } else {
+            echo 'login to comment';
+        }
+        ?>
+
+
 
         <div class="my-3 p-3 bg-body rounded shadow-sm">
             <h6 class="border-bottom pb-2 mb-0">Recent comments</h6>
@@ -186,13 +205,20 @@ if ($method == "POST") {
                 // $cmt_ = $row['th_id'];
                 $cmt_cnt = $row['cmt_cnt'];
                 $cmt_dt = $row['cmt_dt'];
+                $th_user_id = $row['th_id'];
+                $sql_2 = "SELECT username FROM `users` WHERE sno=$th_user_id";
+                $result = mysqli_query($conn, $sql_2);
+                $row2 = mysqli_fetch_assoc($result);
+                $username = $row2['username'];
+                // echo $username;
+
                 echo '<div class="d-flex text-body-secondary pt-3">
                 <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
                     <title>Placeholder</title>
                     <rect width="100%" height="100%" fill="#007bff" /><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text>
                 </svg>
                 <p class="pb-3 mb-0 small lh-sm border-bottom">
-                    <strong class="d-block text-gray-dark">@username at ' . $cmt_dt . '</strong>
+                    <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
                     ' . $cmt_cnt . '
                 </p>
             </div>';
@@ -209,24 +235,14 @@ if ($method == "POST") {
     </div>';
             }
             ?>
-
-
-
-
             <small class="d-block text-end mt-3">
                 <a href="#">All updates</a>
             </small>
         </div>
-
-        <hr>
     </main>
 
-    <?php
-    include 'partials/_footer.php'
-    ?>
-
+    <?php include 'partials/_footer.php' ?>
     <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="offcanvas-navbar.js"></script>
 </body>
 

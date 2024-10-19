@@ -1,10 +1,10 @@
 <?php
 
-require 'db.php';
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username']) && isset($_POST['pass'])) {
+$alert = "false";
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    require '../database/_connect.php';
     $username = $_POST['username'];
-    $password = $_POST['pass'];
+    $pass = $_POST['pass'];
 
     // Retrieve user from database
     $query = "SELECT * FROM `users` WHERE `username` = '$username'";
@@ -14,10 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username']) && isset($
         $user = mysqli_fetch_assoc($result);
 
         // Verify the password
-        if (password_verify($password, $user['password'])) {
+        if (password_verify($pass, $user['user_pass'])) {
             session_start();
+            $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $username;
-            header('Location: welcome.php');
+            $_SESSION["sno"] = $user['sno'];
+            header('Location: ../../discussion.php');
             exit();
         } else {
             echo "<script>alert('Invalid password');</script>";
@@ -35,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username']) && isset($
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Signup Form</title>
+    <title>Login to brainoverflow</title>
     <link rel="stylesheet" href="style.css">
 
 </head>

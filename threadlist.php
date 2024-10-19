@@ -1,4 +1,5 @@
 <?php
+session_start();
 // require 'partials/_redirect.php';
 ?>
 <?php
@@ -143,7 +144,10 @@ if ($method == "POST") {
         ?>
 
         <hr>
-        <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="POST">
+
+        <?php 
+        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
+            echo '<form action="'. $_SERVER["REQUEST_URI"] .'" method="POST">
             <div class="mb-3">
                 <label for="concern_title" class="form-label">Concern</label>
                 <input type="text" class="form-control" id="concern_title" name="concern_title" placeholder="keep your concern short and crisp as possible">
@@ -154,7 +158,12 @@ if ($method == "POST") {
             </div>
 
             <button type="submit" class="btn btn-success">Success</button>
-        </form>
+        </form>';
+          } else {
+            echo 'login to start a discussion';
+          }
+        ?>
+        
 
         <hr>
         <?php
@@ -169,6 +178,11 @@ if ($method == "POST") {
             $th_id = $row['th_id'];
             $th_name = $row['th_name'];
             $th_desc = $row['th_desc'];
+            $th_user_id = $row['th_user_id'];
+            $sql_2 = "SELECT username FROM `users` WHERE sno=$th_user_id";
+            $result = mysqli_query($conn, $sql_2);
+            $row2 = mysqli_fetch_assoc($result);
+            $username = $row2['username'];
             echo '
         <div class="d-flex align-items-center border-primary ">
             <div class="flex-shrink-0 ">
@@ -176,7 +190,7 @@ if ($method == "POST") {
             </div>
             <a class="text-body text-decoration-none" href="thread.php?th_id=' . $th_id . '">
             <div class="flex-grow-1 ms-3">
-            <h5 class="mt-0">' . $th_name . '</h5>
+            <h5 class="mt-0">' . $th_name . ' by '. $username. '</h5>
                 ' . $th_desc . '
             </div></div></a><hr>';
         }
