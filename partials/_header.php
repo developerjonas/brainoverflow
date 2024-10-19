@@ -44,11 +44,12 @@ echo '<div class="container-fluid">
           echo '
         </ul>
 
-        <form class="d-flex" role="search">
+        <form class="d-flex" role="search" action="search.php" method="GET">
           <input
             class="form-control me-2"
             type="search"
             placeholder="Search"
+            name="search"
             aria-label="Search" />
           <button class="btn btn-outline-success" type="submit">
             Search
