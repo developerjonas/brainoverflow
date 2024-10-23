@@ -3,14 +3,14 @@
 $alert = "false";
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     include '../database/_connect.php';
-    $username = $_POST['username'];
+    $name = $_POST['name'];
     $email = $_POST['email'];
     $c_pass = $_POST['password'];
     $pass = $_POST['pass'];
 
     // check whether this email or username already exists
 
-    $already_exists = "SELECT * FROM `users` where user_email = '$email' AND username = '$username'";
+    $already_exists = "SELECT * FROM `admin` where email = '$email' AND name = '$name'";
     $ae_result = mysqli_query($conn, $already_exists);
     $num_rows = mysqli_num_rows($ae_result);
     if ($num_rows > 0) {
@@ -18,18 +18,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     } else {
         if ($pass = $c_pass) {
             $hash = password_hash($c_pass, PASSWORD_BCRYPT);
-            $sql = "INSERT INTO `users` (`user_email`, `username`, `user_pass`, `user_dt`) VALUES ('$email','$username','$hash', current_timestamp())";
+            $sql = "INSERT INTO `admin` (`email`, `name`, `pass`, `dt`) VALUES ('$email','$name','$hash', current_timestamp())";
             $result = mysqli_query($conn, $sql);
             if ($result) {
                 $alert = true;
-                header("Location: login.php?signupsuccess=true");
+                header("Location: login.php");
                 exit();
             }
         } else {
-            $alert = "Password must be same";
+            echo "<script>alert('Must be same Password');</script>";
+
         }
     }
-    header("Location: login.php?signupsuccess=false&error=$alert");
 }
 
 ?>
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup to brainoverflow</title>
+    <title>Admin Signup</title>
     <link rel="stylesheet" href="style.css">
 
 </head>
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             <h2>Signup</h2>
             <form action="signup.php" method="POST" class="signup-form">
                 <input type="email" name="email" placeholder="Email" require>
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="name" placeholder="name" required>
                 <input type="password" name="pass" placeholder="Password" required>
                 <input type="password" name="password" placeholder="Confirm Password" required>
                 <button type="submit">Sign Up</button>

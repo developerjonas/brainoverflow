@@ -3,29 +3,29 @@
 $alert = "false";
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     require '../database/_connect.php';
-    $username = $_POST['username'];
+    $name = $_POST['name'];
     $pass = $_POST['pass'];
 
     // Retrieve user from database
-    $query = "SELECT * FROM `users` WHERE `username` = '$username'";
+    $query = "SELECT * FROM `admin` WHERE `name` = '$name'";
     $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
-        $user = mysqli_fetch_assoc($result);
+        $admin = mysqli_fetch_assoc($result);
 
         // Verify the password
-        if (password_verify($pass, $user['user_pass'])) {
+        if (password_verify($pass, $user['pass'])) {
             session_start();
             $_SESSION['loggedin'] = true;
-            $_SESSION['username'] = $username;
-            $_SESSION["sno"] = $user['sno'];
-            header('Location: ../../discussion.php');
+            $_SESSION['name'] = $name;
+            $_SESSION["sno"] = $admin['sno'];
+            header('Location: panel/index.php');
             exit();
         } else {
             echo "<script>alert('Invalid password');</script>";
         }
     } else {
-        echo "<script>alert('User not found');</script>";
+        echo "<script>alert('admin not found');</script>";
     }
 }
 
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         <div class="form-container">
             <h2>Login</h2>
             <form action="login.php" method="POST" class="login-form">
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="name" placeholder="Username" required>
                 <input type="password" name="pass" placeholder="Password" required>
                 <button type="submit">Login</button>
                 <p>Don't have an account? <a href="signup.php">Sign up</a></p>

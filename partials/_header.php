@@ -27,24 +27,35 @@ echo '<div class="container-fluid">
             <a class="nav-link disabled" href=""><--||--></a>
           </li>
           ';
-
-          if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
-            $name = $_SESSION['username'];
-            echo '<li class="nav-item">
-
-            <a class="nav-link active" aria-current="page" href="user.php">Welcome <code>'.$name.'</code></a>
+          if((isset($_SESSION['admin']) && $_SESSION['logged'] == true)){
+            $admin = $_SESSION['name'];
+              echo '<li class="nav-item">
+  
+              <a class="nav-link active" aria-current="page" href="user.php">Welcome <code>'.$name.'</code></a>
+              </li>
+              <li class="nav-item">
+              <a class="nav-link" href="partials/admin/logout.php">Exit</a>
+            </li>';
+          } else {
+            if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
+              $name = $_SESSION['username'];
+              echo '<li class="nav-item">
+  
+              <a class="nav-link active" aria-current="page" href="user.php">Welcome <code>'.$name.'</code></a>
+              </li>
+              <li class="nav-item">
+              <a class="nav-link" href="partials/user/logout.php">Exit</a>
+            </li>';
+            } else {
+              echo '<li class="nav-item">
+              <a class="nav-link" href="partials/user/signup.php">Join</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="partials/user/logout.php">Exit</a>
-          </li>';
-          } else {
-            echo '<li class="nav-item">
-            <a class="nav-link" href="partials/user/signup.php">Join</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="partials/user/login.php">Enter</a>
-          </li>';
+              <a class="nav-link" href="partials/user/login.php">Enter</a>
+            </li>';
+            }
           }
+          
 
           echo '
         </ul>

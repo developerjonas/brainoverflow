@@ -26,10 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 exit();
             }
         } else {
-            $alert = "Password must be same";
+            echo "<script>alert('Must be same password');</script>";
         }
     }
-    header("Location: login.php?signupsuccess=false&error=$alert");
 }
 
 ?>
