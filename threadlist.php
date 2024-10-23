@@ -1,6 +1,6 @@
 <?php
 session_start();
-// require 'partials/_redirect.php';
+require 'partials/_redirect.php';
 ?>
 <?php
 require 'partials/database/_connect.php';

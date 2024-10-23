@@ -22,14 +22,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $result = mysqli_query($conn, $sql);
             if ($result) {
                 $alert = true;
-                header("Location: ../../discussions.php?signupsuccess=true");
+                header("Location: login.php?signupsuccess=true");
                 exit();
             }
         } else {
             $alert = "Password must be same";
         }
     }
-    header("Location: ../../discussions.php?signupsuccess=false&error=$alert");
+    header("Location: login.php?signupsuccess=false&error=$alert");
 }
 
 ?>
@@ -64,6 +64,3 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <script src="script.js"></script>
 
 </html>
-<?php
-require 'db.php';
-?>

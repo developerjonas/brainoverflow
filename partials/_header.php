@@ -15,12 +15,8 @@ echo '<div class="container-fluid">
         id="navbarsExampleDefault">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="#">Dashboard</a>
+            <a class="nav-link" href="discussion.php">Discussion</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="discussion.php">Discussion</a>
-          </li>
-
           <li class="nav-item">
             <a class="nav-link" href="about.php">About</a>
           </li>
@@ -28,17 +24,26 @@ echo '<div class="container-fluid">
             <a class="nav-link" href="threadlist.php">Threads</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="partials/user/signup.php">Signup</a>
+            <a class="nav-link disabled" href=""><--||--></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="partials/user/login.php">Signin</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="partials/user/logout.php">Logo ut</a>
-          </li>';
+          ';
 
           if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
-            echo 'Welcome Jonas';
+            $name = $_SESSION['username'];
+            echo '<li class="nav-item">
+
+            <a class="nav-link active" aria-current="page" href="user.php">Welcome <code>'.$name.'</code></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="partials/user/logout.php">Exit</a>
+          </li>';
+          } else {
+            echo '<li class="nav-item">
+            <a class="nav-link" href="partials/user/signup.php">Join</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="partials/user/login.php">Enter</a>
+          </li>';
           }
 
           echo '
