@@ -316,51 +316,36 @@
 
         <section class="section">
 
+
             <?php
             require '../../../../partials/database/_connect.php';
 
+            // Make sure to check if cat_id is set before querying
+            if (isset($_GET["cat_id"])) {
+                $cat_id = $_GET["cat_id"];
+                $sqli = "SELECT * FROM categories WHERE ct_id = $cat_id";
+                $results = mysqli_query($conn, $sqli);
 
-            $method = $_SERVER['REQUEST_METHOD'];
-            if ($method == "POST") {
-                $cat_id = $_POST["id"];
-                $name = mysqli_real_escape_string($conn, $_POST['name']);
-                $desc = mysqli_real_escape_string($conn, $_POST['desc']);
-
-                if ($cat_id > 0) {
-                    $sql = "UPDATE `categories` SET `ct_name` = '$name', `ct_desc` = '$desc' WHERE ct_id = $cat_id";
-                    $result = mysqli_query($conn, $sql);
-
-                    if ($result) {
-                        echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                  <i class="bi bi-check-circle me-1"></i>
-                  Category Edited Successfully!
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>';
-                    } else {
-                        echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <i class="bi bi-x-circle me-1"></i>
-                  Problem Editing Category! ' . mysqli_error($conn) . '
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>';
-                    }
+                if ($results) {
+                    $row = mysqli_fetch_assoc($results);
+                    $cat_name = $row['ct_name'];
+                    $cat_desc = $row['ct_desc'];
                 } else {
                     echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <i class="bi bi-x-circle me-1"></i>
-              Invalid Category ID!
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>';
+                          <i class="bi bi-x-circle me-1"></i>
+                          Problem fetching category! ' . mysqli_error($conn) . '
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
                 }
-
+            } else {
+                echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                      <i class="bi bi-x-circle me-1"></i>
+                      Category ID not provided!
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
             }
-            $cat_id = $_POST["id"];
-            $sqli = "SELECT * FROM categories WHERE ct_id = $cat_id";
-            $results = mysqli_query($conn, $sqli);
-            $row = mysqli_fetch_assoc($results);
-            $cat_name = $row['ct_name'];
-            $cat_desc = $row['ct_desc'];
 
-            // Fetch the category data for the form
-            
+
 
             ?>
             <div class="card">
@@ -368,7 +353,7 @@
                     <h5 class="card-title">Edit Category - <?php echo $cat_name; ?></h5>
 
                     <!-- Floating Labels Form -->
-                    <form class="row g-3" action="edit.php" method="POST">
+                    <form class="row g-3" action="edit_process.php" method="POST">
                         <input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['cat_id']); ?>">
                         <div class="col-md-12">
                             <div class="form-floating">
