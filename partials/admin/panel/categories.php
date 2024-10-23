@@ -15,7 +15,9 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -275,7 +277,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="index.php">
+        <a class="nav-link collapsed" href="index.php">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -289,7 +291,7 @@
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="categories.php">
+        <a class="nav-link " href="categories.php">
           <i class="bi bi-bullseye"></i>
           <span>Categories</span>
         </a>
@@ -302,15 +304,106 @@
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Dashboard</h1>
+      <h1>Categories</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item active">Dashboard</li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+          <li class="breadcrumb-item active">Categories</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
 
+    <section class="section">
+      <?php
+      require '../../../partials/database/_connect.php';
+      $method = $_SERVER['REQUEST_METHOD'];
+      if ($method == "POST") {
+        // INSERT CATEGORY INTO DATABASE...
+        $name = $_POST['name'];
+        $name = str_replace('"', '\"', $name);
+        $name = str_replace("'", "\'", $name);
+        $desc = $_POST['desc'];
+        $desc = str_replace('"', '\"', $desc);
+        $desc = str_replace("'", "\'", $desc);
+
+        $insert = "INSERT INTO `categories` (`ct_name`, `ct_desc`, `ct_dt`) VALUES('$name', '$desc', current_timestamp())";
+        // echo $insert;
+        $result = mysqli_query($conn, $insert);
+        if (mysqli_query($conn, $insert)) {
+          echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-1"></i>
+                Category Inserted Successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>';
+        } else {
+          echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-1"></i>
+                Problem Inserting Category!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>' . mysqli_error($conn);
+        }
+      }
+      ?>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Add New Category</h5>
+
+          <!-- Floating Labels Form -->
+          <form class="row g-3" action="categories.php" method="POST">
+            <div class="col-md-12">
+              <div class="form-floating">
+                <input type="text" name="name" class="form-control" id="floatingName" placeholder="Category Name">
+                <label for="floatingName">Name</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-floating">
+                <textarea class="form-control" name="desc" placeholder="Category Description" id="floatingTextarea"
+                  style="height: 100px;"></textarea>
+                <label for="floatingTextarea">Description</label>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn btn-success">Add</button>
+            </div>
+          </form><!-- End floating Labels Form -->
+
+        </div>
+      </div>
+      <div class="row">
+        <?php
+
+        require '../../database/_connect.php';
+
+        $sql = "SELECT * FROM `categories`";
+        $result = mysqli_query($conn, $sql);
+
+        while ($row = mysqli_fetch_assoc($result)) {
+          $cat_name = $row['ct_name'];
+          $cat_desc = $row['ct_desc'];
+          $cat_id = $row['ct_id'];
+          echo '
+           <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">' . $cat_name . '</h5>
+              <p>' . $cat_desc . '</p>
+              <a href="categories/edit.php?cat_id=' . $cat_id . '" class="btn btn-info rounded-pill">Edit</a>
+              <a href="categories/delete.php?cat_id=' . $cat_id . '" class="btn btn-danger rounded-pill">Delete</a>
+            </div>
+            
+          </div>
+
+        </div>     
+    ';
+        }
+        ?>
+
+      </div>
+    </section>
 
 
   </main><!-- End #main -->
@@ -329,7 +422,8 @@
     </div>
   </footer><!-- End Footer -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
