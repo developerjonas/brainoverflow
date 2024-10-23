@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $admin = mysqli_fetch_assoc($result);
 
         // Verify the password
-        if (password_verify($pass, $user['pass'])) {
+        if (password_verify($pass, $admin['pass'])) {
             session_start();
             $_SESSION['loggedin'] = true;
             $_SESSION['name'] = $name;
