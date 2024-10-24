@@ -25,30 +25,30 @@ while ($row = mysqli_fetch_assoc($result)) {
     $thread_count = mysqli_num_rows($thread_result); // Count the number of threads
 
     // Fetch threads for this category
-$sql_threads = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id LIMIT 3";
-$thread_result = mysqli_query($conn, $sql_threads);
-$thread_count = mysqli_num_rows($thread_result); // Count the number of threads
+    $sql_threads = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id LIMIT 3";
+    $thread_result = mysqli_query($conn, $sql_threads);
+    $thread_count = mysqli_num_rows($thread_result); // Count the number of threads
 
-if ($thread_count > 0) {
-    // Display "Recent Threads" section header
-    echo '
+    if ($thread_count > 0) {
+        // Display "Recent Threads" section header
+        echo '
     <div class="my-3 p-3 bg-body rounded shadow-sm">
         <h6 class="border-bottom pb-2 mb-0">Recent Threads</h6>';
 
-    // Loop through threads and display them
-    while ($thread_row = mysqli_fetch_assoc($thread_result)) {
-        $th_id = $thread_row['th_id'];
-        $th_name = $thread_row['th_name'];
-        $th_user_id = $thread_row['th_user_id'];
+        // Loop through threads and display them
+        while ($thread_row = mysqli_fetch_assoc($thread_result)) {
+            $th_id = $thread_row['th_id'];
+            $th_name = $thread_row['th_name'];
+            $th_user_id = $thread_row['th_user_id'];
 
-        // Fetch username from users table
-        $sql_user = "SELECT username FROM `users` WHERE sno=$th_user_id";
-        $result_user = mysqli_query($conn, $sql_user);
-        $user_row = mysqli_fetch_assoc($result_user);
+            // Fetch username from users table
+            $sql_user = "SELECT username FROM `users` WHERE sno=$th_user_id";
+            $result_user = mysqli_query($conn, $sql_user);
+            $user_row = mysqli_fetch_assoc($result_user);
 
-        $username = isset($user_row['username']) ? $user_row['username'] : 'Unknown User'; // Avoid null access
+            $username = isset($user_row['username']) ? $user_row['username'] : 'Unknown User'; // Avoid null access
 
-        echo '
+            echo '
         <div class="d-flex text-body-secondary pt-3">
             <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
                 <title>Placeholder</title>
@@ -63,16 +63,16 @@ if ($thread_count > 0) {
                 <span class="d-block">@' . $username . '</span>
             </div>
         </div>';
-    }
+        }
 
-    echo '
+        echo '
         <small class="d-block text-end mt-3">
             <a href="threadlist.php?cat_id=' . $cat_id . '">All Threads</a>
         </small>
     </div>'; // Close the "Recent Threads" section
-} else {
-    // Handle the case where no threads exist
-    echo '
+    } else {
+        // Handle the case where no threads exist
+        echo '
     <a class="text-decoration-none" href="threadlist.php?cat_id=' . $cat_id . '">
     <div class="container my-5">
         <div class="p-5 text-center bg-body-tertiary rounded-3">
@@ -82,8 +82,8 @@ if ($thread_count > 0) {
             </p>
         </div>
     </div>
-    </a>';}
+    </a>';
+    }
 
     echo '</div></div>'; // Closing divs for category card
 }
-?>
