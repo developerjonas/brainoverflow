@@ -1,12 +1,13 @@
 <?php
 session_start();
+require 'partials/database/_connect.php';
 ?>
 <?php
-require 'partials/database/_connect.php';
 $method = $_SERVER['REQUEST_METHOD'];
-$th_id = $_GET['th_id'];
 if ($method == "POST") {
-    // INSERT THREAD INTO DATABASE...
+    // INSERT COMMENT INTO DATABASE...
+    $th_id = $_GET['th_id'];
+
     $user_id = '0';
     $cmt_cnt = $_POST['cmt_cnt'];
     $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
@@ -123,6 +124,8 @@ if ($method == "POST") {
     <main class="container">
 
         <?php
+        $th_id = $_GET['th_id'];
+
         $sql = "SELECT * FROM `threads` WHERE th_id=$th_id";
         $results = mysqli_query($conn, $sql);
         $row = mysqli_fetch_assoc($results);
@@ -180,24 +183,25 @@ if ($method == "POST") {
                 $username = 'Unknown User';
             }
 
-            echo '<div class="d-flex text-body-secondary pt-3">
-        <p class="pb-3 mb-0 small lh-sm border-bottom">
-            <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
-            ' . $cmt_cnt . '
-        </p>
-    </div>'
 
 
-            ;
-
-
-            $is_owner = (isset($_SESSION['sno']) && $_SESSION['sno'] == $cmt_user_id);
-
-            echo '<div class="d-flex text-body-secondary pt-3">
+            if ($is_owner = (isset($_SESSION['sno']) && $_SESSION['sno'] == $cmt_user_id)) {
+                echo '<div class="d-flex text-body-secondary pt-3">
                 <p class="pb-3 mb-0 small lh-sm border-bottom">
                     <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
                     ' . $cmt_cnt . '
                 </p>';
+            } else {
+                echo '<div class="d-flex text-body-secondary pt-3">
+                        <p class="pb-3 mb-0 small lh-sm border-bottom">
+                            <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
+                            ' . $cmt_cnt . '
+                        </p>
+                        </div>';
+            }
+
+
+
 
             // Display edit and delete buttons if the user is the owner of the comment
             if ($is_owner) {
@@ -217,10 +221,6 @@ if ($method == "POST") {
         }
 
         ?>
-
-        <small class="d-block text-end mt-3">
-            <a href="#">All updates</a>
-        </small>
         </div>
     </main>
 
