@@ -116,9 +116,42 @@ session_start();
   </nav>
 
   <main class="container">
-    <div class="container my-4">
-      <h1>About brainoverflow</h1>
+    <main class="container">
+    <!-- About Header -->
+    <div class="container my-5">
+        <h1 class="text-center">About Us</h1>
+        <p class="text-center text-muted">Welcome to brainoverflow, a community-driven platform for discussion and knowledge sharing.</p>
     </div>
+
+    <!-- About Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <h3>Our Mission</h3>
+                <p>At brainoverflow, our mission is to provide a safe and inclusive space for individuals to share ideas, ask questions, and foster discussions on a wide range of topics. We believe that knowledge is best shared and developed collaboratively.</p>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <h3>Our Vision</h3>
+                <p>We envision a world where everyone has access to the knowledge they seek and can contribute to discussions that enrich our understanding of various subjects. Through our platform, we aim to bridge gaps in knowledge and encourage lifelong learning.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <h3>Our Values</h3>
+                <ul>
+                    <li>Inclusivity: Everyone's voice matters.</li>
+                    <li>Collaboration: Together, we can achieve more.</li>
+                    <li>Integrity: We promote honesty and respect in all discussions.</li>
+                    <li>Innovation: We embrace new ideas and technologies.</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <h3>Join Us</h3>
+                <p>If you're interested in being a part of our community, feel free to <a href="contact.php">contact us</a>. We welcome new ideas and contributions to make brainoverflow a better platform for everyone.</p>
+            </div>
+        </div>
+    </div>
+    </main>
   </main>
 
   <?php

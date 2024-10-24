@@ -1,22 +1,6 @@
 <?php
 session_start();
 ?>
-<?php
-require 'partials/database/_connect.php';
-$method = $_SERVER['REQUEST_METHOD'];
-$th_id = $_GET['th_id'];
-if ($method == "POST") {
-    // INSERT THREAD INTO DATABASE...
-    $user_id = '0';
-    $cmt_cnt = $_POST['cmt_cnt'];
-    $cmt_cnt = str_replace("<", "&lt;" , $cmt_cnt);
-    $cmt_cnt = str_replace(">", "&gt;" , $cmt_cnt);
-    $sno = $_SESSION['sno'];
-    $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
-    $result = mysqli_query($conn, $insert);
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
 
@@ -26,30 +10,26 @@ if ($method == "POST") {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="" />
-    <meta
-        name="author"
-        content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
     <meta name="generator" content="Hugo 0.122.0" />
-    <title>Threads - brainoverlow</title>
+    <title>Discussion - brainoverflow</title>
 
-    <link
-        rel="canonical"
-        href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
 
     <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+
     <link href="assets/style.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
-    <style>
 
-
-    </style>
 
     <!-- Custom styles for this template -->
     <link href="offcanvas-navbar.css" rel="stylesheet" />
+    <link href="headers.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-body-tertiary">
@@ -73,28 +53,17 @@ if ($method == "POST") {
         </symbol>
     </svg>
 
-    <div
-        class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-        <button
-            class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-            id="bd-theme"
-            type="button"
-            aria-expanded="false"
-            data-bs-toggle="dropdown"
-            aria-label="Toggle theme (auto)">
+    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+        <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
+            aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
             <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
                 <use href="#circle-half"></use>
             </svg>
             <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
         </button>
-        <ul
-            class="dropdown-menu dropdown-menu-end shadow"
-            aria-labelledby="bd-theme-text">
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
             <li>
-                <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center"
-                    data-bs-theme-value="light"
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
                     aria-pressed="false">
                     <svg class="bi me-2 opacity-50" width="1em" height="1em">
                         <use href="#sun-fill"></use>
@@ -106,10 +75,7 @@ if ($method == "POST") {
                 </button>
             </li>
             <li>
-                <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center"
-                    data-bs-theme-value="dark"
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
                     aria-pressed="false">
                     <svg class="bi me-2 opacity-50" width="1em" height="1em">
                         <use href="#moon-stars-fill"></use>
@@ -121,10 +87,7 @@ if ($method == "POST") {
                 </button>
             </li>
             <li>
-                <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center active"
-                    data-bs-theme-value="auto"
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
                     aria-pressed="true">
                     <svg class="bi me-2 opacity-50" width="1em" height="1em">
                         <use href="#circle-half"></use>
@@ -138,90 +101,63 @@ if ($method == "POST") {
         </ul>
     </div>
 
-    <nav
-        class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark"
-        aria-label="Main navigation">
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
         <?php require 'partials/_header.php'; ?>
     </nav>
 
-
     <main class="container">
-
-        <?php
-        $sql = "SELECT * FROM `threads` WHERE th_id=$th_id";
-        $results = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_assoc($results);
-        $th_title = $row['th_name'];
-        $th_desc = $row['th_desc'];
-        $th_user_id = $row['th_user_id'];
-        $sql_03 = "SELECT username FROM `users` WHERE sno=$th_user_id";
-        $result = mysqli_query($conn, $sql_03);
-        $row_03 = mysqli_fetch_assoc($result);
-        $th_user = $row_03['username'];
-
-        echo ' <div class="d-flex align-items-center p-3 my-3 text-white bg-dark rounded shadow-sm">
-            <img class="me-3" src="/docs/5.3/assets/brand/bootstrap-logo-white.svg" alt="" width="48" height="38">
-            <div class="lh-1">
-                <h1 class="h6 mb-0 text-white lh-1">' . $th_title . ' by ' . $th_user . '</h1>
-                <small>' . $th_desc . '</small>
-            </div>
-        </div>'
-        ?>
-
-        <hr>
-
-        <?php
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-    echo '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
-        <div class="mb-3">
-            <label for="concern_desc" class="form-label">Comment</label>
-            <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
+        <!-- Contact Header -->
+        <div class="container contact-header my-4">
+            <h1 class="text-center">Contact Us</h1>
+            <p class="text-center text-muted">We'd love to hear from you! Please fill out the form below to reach out to
+                us.</p>
         </div>
-        <button type="submit" class="btn btn-success">Submit</button>
-    </form>';
-} else {
-    echo 'Login to comment';
-}
-?>
 
-<!-- Fetching comments -->
-<?php
-$sql = "SELECT * FROM `comments` WHERE th_id=$th_id";
-$results = mysqli_query($conn, $sql);
-$no_result = true;
+        <!-- Contact Form -->
+        <div class="container">
+            <div class="row justify-content-center contact-info">
+                <div class="col-lg-6">
+                    <div class="contact-form">
+                        <form>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Your Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="John Doe">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea class="form-control" id="message" rows="5"
+                                    placeholder="Enter your message here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-bd-primary">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-while ($row = mysqli_fetch_assoc($results)) {
-    $no_result = false;
-    $cmt_cnt = $row['cmt_cnt'];
-    $cmt_dt = $row['cmt_dt'];
-    $cmt_user_id = $row['cmt_user_id'];
-    
-    $sql_2 = "SELECT username FROM `users` WHERE sno=$cmt_user_id";
-    $result = mysqli_query($conn, $sql_2);
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row2 = mysqli_fetch_assoc($result);
-        $username = $row2['username'];
-    } else {
-        $username = 'Unknown User';
-    }
-
-    echo '<div class="d-flex text-body-secondary pt-3">
-        <p class="pb-3 mb-0 small lh-sm border-bottom">
-            <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
-            ' . $cmt_cnt . '
-        </p>
-    </div>';
-}
-?>
-
-            <small class="d-block text-end mt-3">
-                <a href="#">All updates</a>
-            </small>
+            <!-- Social Media Icons -->
+            <div class="row justify-content-center mt-4">
+                <div class="col-lg-6 text-center">
+                    <h5>Connect with us</h5>
+                    <div class="social-icons">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
-    <?php include 'partials/_footer.php' ?>
+    <?php
+    include 'partials/_footer.php'
+        ?>
     <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="offcanvas-navbar.js"></script>
 </body>
 

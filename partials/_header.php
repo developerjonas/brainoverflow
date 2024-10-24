@@ -1,7 +1,7 @@
 <?php
 
 echo '<div class="container-fluid">
-      <a class="navbar-brand" href="#">brainoverflow</a>
+      <a class="navbar-brand" href="index.php">brainoverflow</a>
       <button
         class="navbar-toggler p-0 border-0"
         type="button"
@@ -19,6 +19,12 @@ echo '<div class="container-fluid">
           </li>
           <li class="nav-item">
             <a class="nav-link" href="about.php">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="contact.php" class="nav-link ">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a href="faqs.php" class="nav-link">FAQs</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="threadlist.php">Threads</a>

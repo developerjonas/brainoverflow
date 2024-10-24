@@ -8,7 +8,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $cat_id = $_GET['cat_id'];
 if ($method == "POST") {
     // INSERT THREAD INTO DATABASE...
-    $user_id = '0';
+    $user_id = $_SESSION['sno'];
     $th_title = $_POST['concern_title'];
     $th_title = str_replace("<", "&lt;" , $th_title);
     $th_title = str_replace(">", "&gt;" , $th_title);
@@ -183,21 +183,32 @@ if ($method == "POST") {
             $th_name = $row['th_name'];
             $th_desc = $row['th_desc'];
             $th_user_id = $row['th_user_id'];
+        
             $sql_2 = "SELECT username FROM `users` WHERE sno=$th_user_id";
             $result = mysqli_query($conn, $sql_2);
             $row2 = mysqli_fetch_assoc($result);
-            $username = $row2['username'];
+        
+            if ($row2) { // Check if the query returned a result
+                $username = $row2['username'];
+            } else {
+                $username = "Unknown User"; // Default value if user not found
+            }
+        
             echo '
-        <div class="d-flex align-items-center border-primary ">
-            <div class="flex-shrink-0 ">
-                <img src="..." alt="...">
-            </div>
-            <a class="text-body text-decoration-none" href="thread.php?th_id=' . $th_id . '">
-            <div class="flex-grow-1 ms-3">
-            <h5 class="mt-0">' . $th_name . ' by '. $username. '</h5>
-                ' . $th_desc . '
-            </div></div></a><hr>';
+            <div class="d-flex align-items-center border-primary ">
+                <div class="flex-shrink-0 ">
+                    <img src="..." alt="...">
+                </div>
+                <a class="text-body text-decoration-none" href="thread.php?th_id=' . $th_id . '">
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="mt-0">' . $th_name . ' by '. $username. '</h5>
+                        ' . $th_desc . '
+                    </div>
+                </div>
+            </a>
+            <hr>';
         }
+        
 
         if ($no_result) {
 

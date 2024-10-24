@@ -11,25 +11,25 @@ echo'
             href="/"
             class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
             <svg class="bi me-2" width="40" height="32">
-                <use xlink:href="" />
+                <use xlink:href="index.php" />
             </svg>
         </a>
 
         <ul class="nav col-md-4 justify-content-end">
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">Home</a>
+                <a href="index.php" class="nav-link px-2 text-body-secondary">Home</a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">Features</a>
+                <a href="discussion.php" class="nav-link px-2 text-body-secondary">Discussions</a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">Pricing</a>
+                <a href="about.php" class="nav-link px-2 text-body-secondary">About</a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">FAQs</a>
+                <a href="contact.php" class="nav-link px-2 text-body-secondary">Contact</a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">About</a>
+                <a href="faqs.php" class="nav-link px-2 text-body-secondary">FAQs</a>
             </li>
         </ul>
     </footer>
