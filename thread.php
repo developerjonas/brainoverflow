@@ -9,8 +9,8 @@ if ($method == "POST") {
     // INSERT THREAD INTO DATABASE...
     $user_id = '0';
     $cmt_cnt = $_POST['cmt_cnt'];
-    $cmt_cnt = str_replace("<", "&lt;" , $cmt_cnt);
-    $cmt_cnt = str_replace(">", "&gt;" , $cmt_cnt);
+    $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
+    $cmt_cnt = str_replace(">", "&gt;", $cmt_cnt);
     $sno = $_SESSION['sno'];
     $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
     $result = mysqli_query($conn, $insert);
@@ -26,19 +26,13 @@ if ($method == "POST") {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="" />
-    <meta
-        name="author"
-        content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
     <meta name="generator" content="Hugo 0.122.0" />
     <title>Threads - brainoverlow</title>
 
-    <link
-        rel="canonical"
-        href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
 
     <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="assets/style.css" rel="stylesheet" />
@@ -73,28 +67,17 @@ if ($method == "POST") {
         </symbol>
     </svg>
 
-    <div
-        class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-        <button
-            class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-            id="bd-theme"
-            type="button"
-            aria-expanded="false"
-            data-bs-toggle="dropdown"
-            aria-label="Toggle theme (auto)">
+    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+        <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
+            aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
             <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
                 <use href="#circle-half"></use>
             </svg>
             <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
         </button>
-        <ul
-            class="dropdown-menu dropdown-menu-end shadow"
-            aria-labelledby="bd-theme-text">
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
             <li>
-                <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center"
-                    data-bs-theme-value="light"
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
                     aria-pressed="false">
                     <svg class="bi me-2 opacity-50" width="1em" height="1em">
                         <use href="#sun-fill"></use>
@@ -106,10 +89,7 @@ if ($method == "POST") {
                 </button>
             </li>
             <li>
-                <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center"
-                    data-bs-theme-value="dark"
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
                     aria-pressed="false">
                     <svg class="bi me-2 opacity-50" width="1em" height="1em">
                         <use href="#moon-stars-fill"></use>
@@ -121,10 +101,7 @@ if ($method == "POST") {
                 </button>
             </li>
             <li>
-                <button
-                    type="button"
-                    class="dropdown-item d-flex align-items-center active"
-                    data-bs-theme-value="auto"
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
                     aria-pressed="true">
                     <svg class="bi me-2 opacity-50" width="1em" height="1em">
                         <use href="#circle-half"></use>
@@ -138,9 +115,7 @@ if ($method == "POST") {
         </ul>
     </div>
 
-    <nav
-        class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark"
-        aria-label="Main navigation">
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
         <?php require 'partials/_header.php'; ?>
     </nav>
 
@@ -166,57 +141,86 @@ if ($method == "POST") {
                 <small>' . $th_desc . '</small>
             </div>
         </div>'
-        ?>
+            ?>
 
         <hr>
 
         <?php
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-    echo '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
+        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
+            echo '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
         <div class="mb-3">
             <label for="concern_desc" class="form-label">Comment</label>
             <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
         </div>
         <button type="submit" class="btn btn-success">Submit</button>
     </form>';
-} else {
-    echo 'Login to comment';
-}
-?>
+        } else {
+            echo 'Login to comment';
+        }
+        ?>
 
-<!-- Fetching comments -->
-<?php
-$sql = "SELECT * FROM `comments` WHERE th_id=$th_id";
-$results = mysqli_query($conn, $sql);
-$no_result = true;
+        <!-- Fetching comments -->
+        <?php
+        $sql = "SELECT * FROM `comments` WHERE th_id=$th_id";
+        $results = mysqli_query($conn, $sql);
+        $no_result = true;
 
-while ($row = mysqli_fetch_assoc($results)) {
-    $no_result = false;
-    $cmt_cnt = $row['cmt_cnt'];
-    $cmt_dt = $row['cmt_dt'];
-    $cmt_user_id = $row['cmt_user_id'];
-    
-    $sql_2 = "SELECT username FROM `users` WHERE sno=$cmt_user_id";
-    $result = mysqli_query($conn, $sql_2);
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row2 = mysqli_fetch_assoc($result);
-        $username = $row2['username'];
-    } else {
-        $username = 'Unknown User';
-    }
+        while ($row = mysqli_fetch_assoc($results)) {
+            $no_result = false;
+            $cmt_cnt = $row['cmt_cnt'];
+            $cmt_dt = $row['cmt_dt'];
+            $cmt_user_id = $row['cmt_user_id'];
 
-    echo '<div class="d-flex text-body-secondary pt-3">
+            $sql_2 = "SELECT username FROM `users` WHERE sno=$cmt_user_id";
+            $result = mysqli_query($conn, $sql_2);
+            if ($result && mysqli_num_rows($result) > 0) {
+                $row2 = mysqli_fetch_assoc($result);
+                $username = $row2['username'];
+            } else {
+                $username = 'Unknown User';
+            }
+
+            echo '<div class="d-flex text-body-secondary pt-3">
         <p class="pb-3 mb-0 small lh-sm border-bottom">
             <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
             ' . $cmt_cnt . '
         </p>
-    </div>';
-}
-?>
+    </div>'
 
-            <small class="d-block text-end mt-3">
-                <a href="#">All updates</a>
-            </small>
+
+            ;
+
+
+            $is_owner = (isset($_SESSION['sno']) && $_SESSION['sno'] == $cmt_user_id);
+
+            echo '<div class="d-flex text-body-secondary pt-3">
+                <p class="pb-3 mb-0 small lh-sm border-bottom">
+                    <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
+                    ' . $cmt_cnt . '
+                </p>';
+
+            // Display edit and delete buttons if the user is the owner of the comment
+            if ($is_owner) {
+                echo '<div class="ms-auto">
+                    <form method="POST" action="edit_comment.php" class="d-inline">
+                        <input type="hidden" name="cmt_id" value="' . $row['cmt_id'] . '">
+                        <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+                    </form>
+                    <form method="POST" action="delete_comment.php" class="d-inline">
+                        <input type="hidden" name="cmt_id" value="' . $row['cmt_id'] . '">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                  </div>';
+            }
+
+            echo '</div>';
+        }
+
+        ?>
+
+        <small class="d-block text-end mt-3">
+            <a href="#">All updates</a>
+        </small>
         </div>
     </main>
 
