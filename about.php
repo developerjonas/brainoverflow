@@ -7,20 +7,19 @@ session_start();
 
 <head>
   <script src="assets/js/color-modes.js"></script>
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="" />
   <meta name="author" content="SparkCircuitLabs" />
   <meta name="generator" content="Hugo 0.122.0" />
   <title>About - brainoverflow</title>
-
   <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
   <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="assets/style.css" rel="stylesheet" />
   <!-- Custom styles for this template -->
-  <link href="offcanvas-navbar.css" rel="stylesheet" />
+  <link href="assets/offcanvas-navbar.css" rel="stylesheet" />
+  <link href="assets/headers.css" rel="stylesheet">
 </head>
 
 <body class="bg-body-tertiary">
@@ -44,28 +43,17 @@ session_start();
     </symbol>
   </svg>
 
-  <div
-    class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-    <button
-      class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-      id="bd-theme"
-      type="button"
-      aria-expanded="false"
-      data-bs-toggle="dropdown"
-      aria-label="Toggle theme (auto)">
+  <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
+    <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
+      aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
       <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
         <use href="#circle-half"></use>
       </svg>
       <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
     </button>
-    <ul
-      class="dropdown-menu dropdown-menu-end shadow"
-      aria-labelledby="bd-theme-text">
+    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
       <li>
-        <button
-          type="button"
-          class="dropdown-item d-flex align-items-center"
-          data-bs-theme-value="light"
+        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
           aria-pressed="false">
           <svg class="bi me-2 opacity-50" width="1em" height="1em">
             <use href="#sun-fill"></use>
@@ -77,10 +65,7 @@ session_start();
         </button>
       </li>
       <li>
-        <button
-          type="button"
-          class="dropdown-item d-flex align-items-center"
-          data-bs-theme-value="dark"
+        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
           aria-pressed="false">
           <svg class="bi me-2 opacity-50" width="1em" height="1em">
             <use href="#moon-stars-fill"></use>
@@ -92,10 +77,7 @@ session_start();
         </button>
       </li>
       <li>
-        <button
-          type="button"
-          class="dropdown-item d-flex align-items-center active"
-          data-bs-theme-value="auto"
+        <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
           aria-pressed="true">
           <svg class="bi me-2 opacity-50" width="1em" height="1em">
             <use href="#circle-half"></use>
@@ -109,58 +91,58 @@ session_start();
     </ul>
   </div>
 
-  <nav
-    class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark"
-    aria-label="Main navigation">
+  <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
     <?php require 'partials/_header.php'; ?>
   </nav>
 
   <main class="container">
     <main class="container">
-    <!-- About Header -->
-    <div class="container my-5">
+      <!-- About Header -->
+      <div class="container my-5">
         <h1 class="text-center">About Us</h1>
-        <p class="text-center text-muted">Welcome to brainoverflow, a community-driven platform for discussion and knowledge sharing.</p>
-    </div>
+        <p class="text-center text-muted">Welcome to brainoverflow, a community-driven platform for discussion and
+          knowledge sharing.</p>
+      </div>
 
-    <!-- About Content -->
-    <div class="container">
+      <!-- About Content -->
+      <div class="container">
         <div class="row">
-            <div class="col-lg-6 mb-4">
-                <h3>Our Mission</h3>
-                <p>At brainoverflow, our mission is to provide a safe and inclusive space for individuals to share ideas, ask questions, and foster discussions on a wide range of topics. We believe that knowledge is best shared and developed collaboratively.</p>
-            </div>
-            <div class="col-lg-6 mb-4">
-                <h3>Our Vision</h3>
-                <p>We envision a world where everyone has access to the knowledge they seek and can contribute to discussions that enrich our understanding of various subjects. Through our platform, we aim to bridge gaps in knowledge and encourage lifelong learning.</p>
-            </div>
+          <div class="col-lg-6 mb-4">
+            <h3>Our Mission</h3>
+            <p>At brainoverflow, our mission is to provide a safe and inclusive space for individuals to share ideas,
+              ask questions, and foster discussions on a wide range of topics. We believe that knowledge is best shared
+              and developed collaboratively.</p>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <h3>Our Vision</h3>
+            <p>We envision a world where everyone has access to the knowledge they seek and can contribute to
+              discussions that enrich our understanding of various subjects. Through our platform, we aim to bridge gaps
+              in knowledge and encourage lifelong learning.</p>
+          </div>
         </div>
         <div class="row">
-            <div class="col-lg-6 mb-4">
-                <h3>Our Values</h3>
-                <ul>
-                    <li>Inclusivity: Everyone's voice matters.</li>
-                    <li>Collaboration: Together, we can achieve more.</li>
-                    <li>Integrity: We promote honesty and respect in all discussions.</li>
-                    <li>Innovation: We embrace new ideas and technologies.</li>
-                </ul>
-            </div>
-            <div class="col-lg-6 mb-4">
-                <h3>Join Us</h3>
-                <p>If you're interested in being a part of our community, feel free to <a href="contact.php">contact us</a>. We welcome new ideas and contributions to make brainoverflow a better platform for everyone.</p>
-            </div>
+          <div class="col-lg-6 mb-4">
+            <h3>Our Values</h3>
+            <ul>
+              <li>Inclusivity: Everyone's voice matters.</li>
+              <li>Collaboration: Together, we can achieve more.</li>
+              <li>Integrity: We promote honesty and respect in all discussions.</li>
+              <li>Innovation: We embrace new ideas and technologies.</li>
+            </ul>
+          </div>
+          <div class="col-lg-6 mb-4">
+            <h3>Join Us</h3>
+            <p>If you're interested in being a part of our community, feel free to <a href="contact.php">contact us</a>.
+              We welcome new ideas and contributions to make brainoverflow a better platform for everyone.</p>
+          </div>
         </div>
-    </div>
+      </div>
     </main>
   </main>
 
-  <?php
-  include 'partials/_footer.php'
-  ?>
-
+  <?php include 'partials/_footer.php' ?>
   <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script src="offcanvas-navbar.js"></script>
+  <script src="assets/offcanvas-navbar.js"></script>
 </body>
 
 </html>

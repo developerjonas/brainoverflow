@@ -6,19 +6,20 @@ session_start();
 <html lang="en" data-bs-theme="auto">
 
 <head>
-    <script src="assets/js/color-modes.js"></script>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Frequently Asked Questions - brainoverflow" />
-    <meta name="author" content="SparkCircuitLabs" />
-    <meta name="generator" content="Hugo 0.122.0" />
-    <title>FAQs - brainoverflow</title>
-
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
-    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="assets/style.css" rel="stylesheet" />
-    <link href="offcanvas-navbar.css" rel="stylesheet" />
+  <script src="assets/js/color-modes.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="SparkCircuitLabs" />
+  <meta name="generator" content="Hugo 0.122.0" />
+  <title>FAQs - brainoverflow</title>
+  <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
+  <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/style.css" rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="assets/offcanvas-navbar.css" rel="stylesheet" />
+  <link href="assets/headers.css" rel="stylesheet">
 </head>
 
 <body class="bg-body-tertiary">
