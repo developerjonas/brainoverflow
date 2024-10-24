@@ -1,21 +1,42 @@
 <?php
 session_start();
 require '../partials/database/_connect.php';
-?>
-<?php
-if(!isset($_GET['cmt_id'])){
-    header('Location : ../index.php');
+
+// Check if cmt_id is set in GET request
+if (!isset($_GET['cmt_id'])) {
+    header('Location: ../index.php');
     exit();
 }
-$cmt_id = $_GET['cmt_id'];
+
+$id = $_GET['cmt_id'];
 $method = $_SERVER['REQUEST_METHOD'];
+
+// Check if the form is submitted
 if ($method == "POST") {
     $cmt_cnt = $_POST['cmt_cnt'];
+
+    // Sanitize input to prevent XSS
     $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
     $cmt_cnt = str_replace(">", "&gt;", $cmt_cnt);
-    $id=$_POST['id'];
-    $update = "UPDATE `comments` SET `cmt_cnt` = '$cmt_cnt' WHERE `comments`.`cmt_id` = $id; ";
+
+
+    // Update comment query
+    $update = "UPDATE `comments` SET `cmt_cnt` = '$cmt_cnt' WHERE `comments`.`cmt_id` = $id;";
     $result = mysqli_query($conn, $update);
+
+    if ($result) {
+        // Redirect to the previous page (if available)
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $previousPage = $_SERVER['HTTP_REFERER'];
+            header("Location: $previousPage");
+        } else {
+            // Fallback to index page if no referrer is available
+            header("Location: ../index.php");
+        }
+        exit();
+    } else {
+        echo "Error updating comment: " . mysqli_error($conn);
+    }
 }
 ?>
 
@@ -23,21 +44,22 @@ if ($method == "POST") {
 <html lang="en" data-bs-theme="auto">
 
 <head>
-  <script src="../assets/js/color-modes.js"></script>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="" />
-  <meta name="author" content="SparkCircuitLabs" />
-  <meta name="generator" content="Hugo 0.122.0" />
-  <title>Edit Comment - brainoverflow</title>
-  <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
-  <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="../assets/style.css" rel="stylesheet" />
-  <!-- Custom styles for this template -->
-  <link href="../assets/offcanvas-navbar.css" rel="stylesheet" />
-  <link href="../assets/headers.css" rel="stylesheet">
+    <script src="../assets/js/color-modes.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="SparkCircuitLabs" />
+    <meta name="generator" content="Hugo 0.122.0" />
+    <title>Edit Comment - brainoverflow</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../assets/style.css" rel="stylesheet" />
+    <!-- Custom styles for this template -->
+    <link href="../assets/offcanvas-navbar.css" rel="stylesheet" />
+    <link href="../assets/headers.css" rel="stylesheet">
 </head>
+
 <body class="bg-body-tertiary">
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
         <symbol id="check2" viewBox="0 0 16 16">
@@ -114,7 +136,7 @@ if ($method == "POST") {
 
     <main class="container">
 
-        
+
 
         <hr>
         <form action="edit_comment.php" method="POST">
