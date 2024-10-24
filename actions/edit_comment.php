@@ -1,21 +1,21 @@
 <?php
 session_start();
-require 'partials/database/_connect.php';
+require '../partials/database/_connect.php';
 ?>
 <?php
-$method = $_SERVER['REQUEST_METHOD'];
-if ($method == "POST") {
-    // INSERT COMMENT INTO DATABASE...
-    $th_id = $_GET['th_id'];
+// $method = $_SERVER['REQUEST_METHOD'];
+// if ($method == "POST") {
+//     // INSERT COMMENT INTO DATABASE...
+//     // $th_id = $_GET['th_id'];
 
-    $user_id = '0';
-    $cmt_cnt = $_POST['cmt_cnt'];
-    $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
-    $cmt_cnt = str_replace(">", "&gt;", $cmt_cnt);
-    $sno = $_SESSION['sno'];
-    $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
-    $result = mysqli_query($conn, $insert);
-}
+//     $user_id = '0';
+//     $cmt_cnt = $_POST['cmt_cnt'];
+//     $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
+//     $cmt_cnt = str_replace(">", "&gt;", $cmt_cnt);
+//     $sno = $_SESSION['sno'];
+//     $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
+//     $result = mysqli_query($conn, $insert);
+// }
 ?>
 
 <!DOCTYPE html>
@@ -29,19 +29,14 @@ if ($method == "POST") {
     <meta name="description" content="" />
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
     <meta name="generator" content="Hugo 0.122.0" />
-    <title>Threads - brainoverlow</title>
+    <title>Edit Comment - brainoverflow</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/offcanvas-navbar/" />
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
 
-    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="assets/style.css" rel="stylesheet" />
-
-    <style>
-
-
-    </style>
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../assets/style.css" rel="stylesheet" />
 
     <!-- Custom styles for this template -->
     <link href="offcanvas-navbar.css" rel="stylesheet" />
@@ -117,113 +112,29 @@ if ($method == "POST") {
     </div>
 
     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
-        <?php require 'partials/_header.php'; ?>
+        <?php require '../partials/_header.php'; ?>
     </nav>
 
 
     <main class="container">
 
-        <?php
-        $th_id = $_GET['th_id'];
-
-        $sql = "SELECT * FROM `threads` WHERE th_id=$th_id";
-        $results = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_assoc($results);
-        $th_title = $row['th_name'];
-        $th_desc = $row['th_desc'];
-        $th_user_id = $row['th_user_id'];
-        $sql_03 = "SELECT username FROM `users` WHERE sno=$th_user_id";
-        $result = mysqli_query($conn, $sql_03);
-        $row_03 = mysqli_fetch_assoc($result);
-        $th_user = $row_03['username'];
-
-        echo ' <div class="d-flex align-items-center p-3 my-3 text-white bg-dark rounded shadow-sm">
-            <img class="me-3" src="/docs/5.3/assets/brand/bootstrap-logo-white.svg" alt="" width="48" height="38">
-            <div class="lh-1">
-                <h1 class="h6 mb-0 text-white lh-1">' . $th_title . ' by ' . $th_user . '</h1>
-                <small>' . $th_desc . '</small>
-            </div>
-        </div>'
-            ?>
+        
 
         <hr>
+        <form action="edit_comment.php" method="POST">
+            <div class="mb-3">
+                <label for="concern_desc" class="form-label">Comment</label>
+                <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
 
-        <?php
-        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-            echo '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
-        <div class="mb-3">
-            <label for="concern_desc" class="form-label">Comment</label>
-            <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn btn-success">Submit</button>
-    </form>';
-        } else {
-            echo 'Login to comment';
-        }
-        ?>
-
-        <!-- Fetching comments -->
-        <?php
-        $sql = "SELECT * FROM `comments` WHERE th_id=$th_id";
-        $results = mysqli_query($conn, $sql);
-        $no_result = true;
-
-        while ($row = mysqli_fetch_assoc($results)) {
-            $no_result = false;
-            $cmt_cnt = $row['cmt_cnt'];
-            $cmt_dt = $row['cmt_dt'];
-            $cmt_user_id = $row['cmt_user_id'];
-
-            $sql_2 = "SELECT username FROM `users` WHERE sno=$cmt_user_id";
-            $result = mysqli_query($conn, $sql_2);
-            if ($result && mysqli_num_rows($result) > 0) {
-                $row2 = mysqli_fetch_assoc($result);
-                $username = $row2['username'];
-            } else {
-                $username = 'Unknown User';
-            }
-
-
-
-            if ($is_owner = (isset($_SESSION['sno']) && $_SESSION['sno'] == $cmt_user_id)) {
-                echo '<div class="d-flex text-body-secondary pt-3">
-                <p class="pb-3 mb-0 small lh-sm border-bottom">
-                    <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
-                    ' . $cmt_cnt . '
-                </p>';
-            } else {
-                echo '<div class="d-flex text-body-secondary pt-3">
-                        <p class="pb-3 mb-0 small lh-sm border-bottom">
-                            <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
-                            ' . $cmt_cnt . '
-                        </p>
-                        </div>';
-            }
-
-            // Display edit and delete buttons if the user is the owner of the comment
-            if ($is_owner) {
-                echo '<div class="ms-auto">
-                    <form method="POST" action="actions/edit_comment.php" class="d-inline">
-                        <input type="hidden" name="cmt_id" value="' . $row['cmt_id'] . '">
-                        <button type="submit" class="btn btn-outline-success btn-sm">Edit</button>
-                    </form>
-                    <form method="POST" action="actions/delete_comment.php" class="d-inline">
-                        <input type="hidden" name="cmt_id" value="' . $row['cmt_id'] . '">
-                        <button type="submit" class="btn btn-outline-info btn-sm">Delete</button>
-                    </form>
-                  </div>';
-            }
-
-            echo '</div>';
-        }
-
-        ?>
         </div>
     </main>
 
-    <?php include 'partials/_footer.php' ?>
-    <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="offcanvas-navbar.js"></script>
+    <?php include '../partials/_footer.php' ?>
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../offcanvas-navbar.js"></script>
 </body>
 
 </html>

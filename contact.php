@@ -117,19 +117,19 @@ session_start();
         <div class="container">
             <div class="row justify-content-center contact-info">
                 <div class="col-lg-6">
-                    <div class="contact-form">
-                        <form>
+                    <div class="contact-form bg-body-tertiary">
+                        <form action="actions/contact_processor.php" method="POST">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Your Name</label>
-                                <input type="text" class="form-control" id="name" placeholder="John Doe">
+                                <input type="text" name="name" class="form-control" id="name" placeholder="name">
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                                <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com">
                             </div>
                             <div class="mb-3">
                                 <label for="message" class="form-label">Message</label>
-                                <textarea class="form-control" id="message" rows="5"
+                                <textarea class="form-control" name="message" id="message" rows="5"
                                     placeholder="Enter your message here..."></textarea>
                             </div>
                             <button type="submit" class="btn btn-bd-primary">Send Message</button>
