@@ -32,15 +32,8 @@ CREATE TABLE `admin` (
   `name` varchar(64) NOT NULL,
   `email` varchar(64) NOT NULL,
   `pass` varchar(256) NOT NULL,
-  `dt` int(11) NOT NULL DEFAULT current_timestamp()
+  `dt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `admin`
---
-
-INSERT INTO `admin` (`sno`, `name`, `email`, `pass`, `dt`) VALUES
-(1, 'helloaashika', 'hello@aashika.com', '$2y$10$hmZM/Y3C0.vALzobCBO8def3mREAF9ja51HMfDLGrY04lEVkgghRa', 2147483647);
 
 -- --------------------------------------------------------
 
@@ -183,7 +176,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `sno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `sno` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `categories`

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'partials/_helpers.php';
+start_app_session();
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
@@ -116,36 +117,34 @@ session_start();
     <main class="container">
 
         <div class="search">
-            <h2>Search results for <strong><?php echo $_GET['search']; ?></strong></h2>
+            <?php $search = is_string($_GET['search'] ?? null) ? trim($_GET['search']) : ''; ?>
+            <h2>Search results for <strong><?php echo h($search); ?></strong></h2>
 
             <?php
             require 'partials/database/_connect.php';
-            $search = $_GET["search"];
-            $sql = "SELECT * FROM `threads` WHERE MATCH (th_name, th_desc) against ('$search')";
-            $result = mysqli_query($conn, $sql);
-            if (!$result) {
-                // Display the error if the query fails
-                echo "Error: " . mysqli_error($conn);
-            } else {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $title = $row['th_name'];
-                    $desc = $row['th_desc'];
-                    $user = $row['th_user_id'];
-                    $date = $row['th_dt'];
+            // Search terms are bound as data rather than interpolated into SQL.
+            $statement = mysqli_prepare($conn, 'SELECT th_name, th_desc, th_user_id, th_dt FROM `threads` WHERE MATCH (th_name, th_desc) AGAINST (?)');
+            mysqli_stmt_bind_param($statement, 's', $search);
+            mysqli_stmt_execute($statement);
+            $result = mysqli_stmt_get_result($statement);
+            while ($row = mysqli_fetch_assoc($result)) {
+                $title = $row['th_name'];
+                $desc = $row['th_desc'];
+                $user = $row['th_user_id'];
+                $date = $row['th_dt'];
 
-                    echo ' 
+                echo '
         <div class="d-flex text-body-secondary pt-3">
             <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
                 <title>Placeholder</title>
                 <rect width="100%" height="100%" fill="#007bff" /><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text>
             </svg>
             <p class="pb-3 mb-0 small lh-sm border-bottom">
-                <strong class="d-block text-gray-dark">' . $user . ' at ' . $date . '</strong>
-                <strong class="d-block text-gray-dark">' . $title . '</strong>
-                ' . $desc . '
+                <strong class="d-block text-gray-dark">' . (int) $user . ' at ' . h($date) . '</strong>
+                <strong class="d-block text-gray-dark">' . h($title) . '</strong>
+                ' . h($desc) . '
             </p>
         </div>';
-                }
             }
             ?>
 

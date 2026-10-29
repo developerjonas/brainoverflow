@@ -1,46 +1,22 @@
 <?php
+require_once __DIR__ . '/../../_auth.php';
 require '../../../../partials/database/_connect.php';
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-$method = $_SERVER['REQUEST_METHOD'];
-if ($method == "GET" && isset($_GET["cat_id"])) {
-    $cat_id = intval($_GET["cat_id"]); // Ensure that the ID is an integer
-
-    if ($cat_id > 0) {
-        // Prepare the SQL statement
-        $sql = "DELETE FROM `categories` WHERE `ct_id` = $cat_id";
-        $result = mysqli_query($conn, $sql);
-
-        if ($result) {
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                  <i class="bi bi-check-circle me-1"></i>
-                  Category Deleted Successfully!
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>';
-            header('Location: ../categories.php');
-            exit(); // Ensure you exit after redirecting
-        } else {
-            die('<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <i class="bi bi-x-circle me-1"></i>
-                  Problem Deleting Category! ' . mysqli_error($conn) . '
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>');
-        }
-    } else {
-        echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <i class="bi bi-x-circle me-1"></i>
-              Invalid Category ID!
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>';
-    }
-} else {
-    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <i class="bi bi-x-circle me-1"></i>
-          Invalid Request Method!
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Invalid form submission.');
 }
+
+$cat_id = positive_int($_POST['cat_id'] ?? null);
+if ($cat_id === null) {
+    http_response_code(400);
+    exit('Invalid category.');
+}
+
+// Deletion is a CSRF-checked POST and uses a bound identifier.
+$statement = mysqli_prepare($conn, 'DELETE FROM `categories` WHERE `ct_id` = ?');
+mysqli_stmt_bind_param($statement, 'i', $cat_id);
+mysqli_stmt_execute($statement);
+header('Location: ../categories.php');
+exit();
 ?>

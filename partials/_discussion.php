@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_helpers.php';
 require 'database/_connect.php';
 
 // Fetch categories
@@ -8,25 +9,23 @@ $result = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_assoc($result)) {
     $cat_name = $row['ct_name'];
     $cat_desc = $row['ct_desc'];
-    $cat_id = $row['ct_id'];
+    $cat_id = (int) $row['ct_id'];
 
     echo '
     <div class="col-sm-6">
         <div class="card my-2">
             <div class="card-body">
-                <h5 class="card-title">' . $cat_name . '</h5>
-                <p class="card-text">' . $cat_desc . '</p>
+                <h5 class="card-title">' . h($cat_name) . '</h5>
+                <p class="card-text">' . h($cat_desc) . '</p>
                 <a href="threadlist.php?cat_id=' . $cat_id . '" class="btn btn-primary">Go</a>
             </div>';
 
     // Fetch threads for this category
-    $sql_threads = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id LIMIT 3";
-    $thread_result = mysqli_query($conn, $sql_threads);
-    $thread_count = mysqli_num_rows($thread_result); // Count the number of threads
-
-    // Fetch threads for this category
-    $sql_threads = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id LIMIT 3";
-    $thread_result = mysqli_query($conn, $sql_threads);
+    // Load recent threads once per category.
+    $threadStatement = mysqli_prepare($conn, 'SELECT * FROM `threads` WHERE th_ct_id = ? ORDER BY th_dt DESC LIMIT 3');
+    mysqli_stmt_bind_param($threadStatement, 'i', $cat_id);
+    mysqli_stmt_execute($threadStatement);
+    $thread_result = mysqli_stmt_get_result($threadStatement);
     $thread_count = mysqli_num_rows($thread_result); // Count the number of threads
 
     if ($thread_count > 0) {
@@ -37,13 +36,15 @@ while ($row = mysqli_fetch_assoc($result)) {
 
         // Loop through threads and display them
         while ($thread_row = mysqli_fetch_assoc($thread_result)) {
-            $th_id = $thread_row['th_id'];
+            $th_id = (int) $thread_row['th_id'];
             $th_name = $thread_row['th_name'];
             $th_user_id = $thread_row['th_user_id'];
 
             // Fetch username from users table
-            $sql_user = "SELECT username FROM `users` WHERE sno=$th_user_id";
-            $result_user = mysqli_query($conn, $sql_user);
+            $userStatement = mysqli_prepare($conn, 'SELECT username FROM `users` WHERE sno = ?');
+            mysqli_stmt_bind_param($userStatement, 'i', $th_user_id);
+            mysqli_stmt_execute($userStatement);
+            $result_user = mysqli_stmt_get_result($userStatement);
             $user_row = mysqli_fetch_assoc($result_user);
 
             $username = isset($user_row['username']) ? $user_row['username'] : 'Unknown User'; // Avoid null access
@@ -57,10 +58,10 @@ while ($row = mysqli_fetch_assoc($result)) {
             </svg>
             <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
                 <div class="d-flex justify-content-between">
-                    <strong class="text-gray-dark">' . $th_name . '</strong>
+                    <strong class="text-gray-dark">' . h($th_name) . '</strong>
                     <a href="thread.php?th_id=' . $th_id . '">View</a>
                 </div>
-                <span class="d-block">@' . $username . '</span>
+                <span class="d-block">@' . h($username) . '</span>
             </div>
         </div>';
         }

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'partials/_helpers.php';
+start_app_session();
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">

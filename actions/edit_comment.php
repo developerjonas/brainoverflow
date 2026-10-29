@@ -1,42 +1,46 @@
 <?php
-session_start();
+require_once '../partials/_helpers.php';
+start_app_session();
 require '../partials/database/_connect.php';
 
-// Check if cmt_id is set in GET request
-if (!isset($_GET['cmt_id'])) {
-    header('Location: ../index.php');
-    exit();
+// Editing is restricted to the comment owner; a session ID alone is not authorization.
+if (($_SESSION['role'] ?? '') !== 'user' || !isset($_SESSION['sno'])) {
+    http_response_code(403);
+    exit('Sign in with the account that owns this comment.');
 }
 
-$id = $_GET['cmt_id'];
-$method = $_SERVER['REQUEST_METHOD'];
+$id = positive_int($_GET['cmt_id'] ?? null);
+if ($id === null) {
+    http_response_code(404);
+    exit('Comment not found.');
+}
+$userId = (int) $_SESSION['sno'];
+$commentStatement = mysqli_prepare($conn, 'SELECT cmt_cnt, th_id FROM `comments` WHERE cmt_id = ? AND cmt_user_id = ?');
+mysqli_stmt_bind_param($commentStatement, 'ii', $id, $userId);
+mysqli_stmt_execute($commentStatement);
+$comment = mysqli_fetch_assoc(mysqli_stmt_get_result($commentStatement));
+if (!$comment) {
+    http_response_code(404);
+    exit('Comment not found.');
+}
 
-// Check if the form is submitted
-if ($method == "POST") {
-    $cmt_cnt = $_POST['cmt_cnt'];
-
-    // Sanitize input to prevent XSS
-    $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
-    $cmt_cnt = str_replace(">", "&gt;", $cmt_cnt);
-
-
-    // Update comment query
-    $update = "UPDATE `comments` SET `cmt_cnt` = '$cmt_cnt' WHERE `comments`.`cmt_id` = $id;";
-    $result = mysqli_query($conn, $update);
-
-    if ($result) {
-        // Redirect to the previous page (if available)
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $previousPage = $_SERVER['HTTP_REFERER'];
-            header("Location: $previousPage");
-        } else {
-            // Fallback to index page if no referrer is available
-            header("Location: ../index.php");
-        }
-        exit();
-    } else {
-        echo "Error updating comment: " . mysqli_error($conn);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        exit('Invalid form token.');
     }
+    $cmt_cnt = $_POST['cmt_cnt'] ?? '';
+    if (!is_string($cmt_cnt) || trim($cmt_cnt) === '') {
+        http_response_code(400);
+        exit('A comment is required.');
+    }
+
+    // Keep ownership in the UPDATE condition to avoid a time-of-check/time-of-use gap.
+    $update = mysqli_prepare($conn, 'UPDATE `comments` SET `cmt_cnt` = ? WHERE `cmt_id` = ? AND `cmt_user_id` = ?');
+    mysqli_stmt_bind_param($update, 'sii', $cmt_cnt, $id, $userId);
+    mysqli_stmt_execute($update);
+    header('Location: ../thread.php?th_id=' . (int) $comment['th_id']);
+    exit();
 }
 ?>
 
@@ -139,11 +143,11 @@ if ($method == "POST") {
 
 
         <hr>
-        <form action="edit_comment.php" method="POST">
-            <input type="hidden" name="id" value="<?php echo $cmt_id ?>">
+        <form action="edit_comment.php?cmt_id=<?php echo (int) $id; ?>" method="POST">
+            <?php echo csrf_field(); ?>
             <div class="mb-3">
                 <label for="concern_desc" class="form-label">Comment</label>
-                <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
+                <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2" required><?php echo h($comment['cmt_cnt']); ?></textarea>
             </div>
             <button type="submit" class="btn btn-success">Submit</button>
         </form>

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../_auth.php';
 ?>
 
 <!DOCTYPE html>
@@ -77,12 +77,12 @@ session_start();
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">Welcome, <?php echo ($_SESSION['username']); ?>!</span>
+            <span class="d-none d-md-block dropdown-toggle ps-2">Welcome, <?php echo h($_SESSION['name'] ?? 'Admin'); ?>!</span>
           </a><!-- End Profile Iamge Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
-              <h6><?php echo ($_SESSION['username']); ?></h6>
+              <h6><?php echo h($_SESSION['name'] ?? 'Admin'); ?></h6>
               <span>Admin</span>
             </li>
             <li>
@@ -90,7 +90,7 @@ session_start();
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="profile.php?id='<?php echo $_SESSION['sno']; ?>'">
+              <a class="dropdown-item d-flex align-items-center" href="profile.php?id=<?php echo (int) $_SESSION['sno']; ?>">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
               </a>
@@ -100,7 +100,7 @@ session_start();
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="profile.php?id='<?php echo $_SESSION['sno']; ?>'">
+              <a class="dropdown-item d-flex align-items-center" href="profile.php?id=<?php echo (int) $_SESSION['sno']; ?>">
                 <i class="bi bi-gear"></i>
                 <span>Account Settings</span>
               </a>
@@ -120,7 +120,7 @@ session_start();
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
+              <a class="dropdown-item d-flex align-items-center" href="../logout.php">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
               </a>
@@ -194,10 +194,6 @@ session_start();
             <?php
             require '../../../partials/database/_connect.php';
 
-            // Enable error reporting
-            error_reporting(E_ALL);
-            ini_set('display_errors', 1);
-
             // Fetch users from the database
             $sql = "SELECT * FROM users";
             $result = mysqli_query($conn, $sql);
@@ -212,12 +208,12 @@ session_start();
               while ($row = mysqli_fetch_assoc($result)) {
                 echo '<tr>
                 <td scope="row">' . $sno++ . '</td>
-                <td>' . htmlspecialchars($row['username']) . '</td>
-                <td>' . htmlspecialchars($row['user_email']) . '</td>
-                <td>' . htmlspecialchars($row['user_dt']) . '</td>
+                <td>' . h($row['username']) . '</td>
+                <td>' . h($row['user_email']) . '</td>
+                <td>' . h($row['user_dt']) . '</td>
                 <td>
-                    <button class="btn btn-danger" onclick="blockUser(' . $row['sno'] . ')">Block User</button>
-                    <button class="btn btn-info" onclick="messageUser(' . $row['sno'] . ')">Message User</button>
+                    <button class="btn btn-danger" onclick="blockUser(' . (int) $row['sno'] . ')">Block User</button>
+                    <button class="btn btn-info" onclick="messageUser(' . (int) $row['sno'] . ')">Message User</button>
                 </td>
               </tr>';
               }

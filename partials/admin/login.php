@@ -1,24 +1,41 @@
 <?php
 
+require_once __DIR__ . '/../_helpers.php';
+start_app_session();
+
 $alert = "false";
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     require '../database/_connect.php';
-    $name = $_POST['name'];
-    $pass = $_POST['pass'];
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        exit('Invalid form token.');
+    }
+    $name = $_POST['name'] ?? '';
+    $pass = $_POST['pass'] ?? '';
+    if (!is_string($name) || !is_string($pass)) {
+        http_response_code(400);
+        exit('Invalid login details.');
+    }
 
-    // Retrieve user from database
-    $query = "SELECT * FROM `admin` WHERE `name` = '$name'";
-    $result = mysqli_query($conn, $query);
+    // Bind credentials as data so login input cannot alter the query.
+    $stmt = mysqli_prepare($conn, 'SELECT * FROM `admin` WHERE `name` = ?');
+    mysqli_stmt_bind_param($stmt, 's', $name);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) > 0) {
         $admin = mysqli_fetch_assoc($result);
 
         // Verify the password
         if (password_verify($pass, $admin['pass'])) {
-            session_start();
-            $_SESSION['loggedin'] = true;
-            $_SESSION['name'] = $name;
-            $_SESSION["sno"] = $admin['sno'];
+            // Rotate the session identifier and replace prior role data after login.
+            session_regenerate_id(true);
+            $_SESSION = [
+                'loggedin' => true,
+                'role' => 'admin',
+                'name' => $admin['name'],
+                'sno' => (int) $admin['sno'],
+            ];
             header('Location: panel/index.php');
             exit();
         } else {
@@ -48,10 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         <div class="form-container">
             <h2>Login</h2>
             <form action="login.php" method="POST" class="login-form">
+                <?php echo csrf_field(); ?>
                 <input type="text" name="name" placeholder="Username" required>
                 <input type="password" name="pass" placeholder="Password" required>
                 <button type="submit">Login</button>
-                <p>Don't have an account? <a href="signup.php">Sign up</a></p>
             </form>
         </div>
     </div>

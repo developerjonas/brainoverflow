@@ -1,7 +1,9 @@
 <?php
-session_start();
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] != true) {
-    header('Location: index.php');
+require_once 'partials/_helpers.php';
+start_app_session();
+// A user profile must never accept an administrator or anonymous session.
+if (($_SESSION['loggedin'] ?? false) !== true || ($_SESSION['role'] ?? '') !== 'user') {
+    header('Location: partials/user/login.php');
     exit();
 }
 ?>
@@ -103,7 +105,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] != true) {
         <div class="container my-4">
             <?php
             if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-                echo ' <h1>Welcome ' . $_SESSION["username"] . '</h1>';
+                echo ' <h1>Welcome ' . h($_SESSION["username"] ?? '') . '</h1>';
             }
             ?>
 
@@ -115,9 +117,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] != true) {
             <hr class="border border-success border-2 opacity-50">
             <?php
             require 'partials/database/_connect.php' ;
-            $idi = $_SESSION['sno'];
-            $sql = "SELECT * FROM `threads` WHERE th_user_id=$idi";
-            $results = mysqli_query($conn, $sql);
+            $idi = (int) $_SESSION['sno'];
+            $threadStatement = mysqli_prepare($conn, 'SELECT * FROM `threads` WHERE th_user_id = ? ORDER BY th_dt DESC');
+            mysqli_stmt_bind_param($threadStatement, 'i', $idi);
+            mysqli_stmt_execute($threadStatement);
+            $results = mysqli_stmt_get_result($threadStatement);
             $no_result = true;
             
 
@@ -126,19 +130,20 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] != true) {
                 $th_id = $row['th_id'];
                 $th_name = $row['th_name'];
                 $th_desc = $row['th_desc'];
-                $idj = $row['th_ct_id'];
-                $sql_2 = "SELECT * FROM `categories` WHERE ct_id=$idj";
-                $result = mysqli_query($conn, $sql_2);
-                $category = mysqli_fetch_assoc($result);
-                $cat = $category['ct_name'];
+                $idj = (int) $row['th_ct_id'];
+                $categoryStatement = mysqli_prepare($conn, 'SELECT ct_name FROM `categories` WHERE ct_id = ?');
+                mysqli_stmt_bind_param($categoryStatement, 'i', $idj);
+                mysqli_stmt_execute($categoryStatement);
+                $category = mysqli_fetch_assoc(mysqli_stmt_get_result($categoryStatement));
+                $cat = $category['ct_name'] ?? 'Unknown category';
                 echo '
         <div class="d-flex align-items-center border-primary ">
             <div class="flex-shrink-0 ">
                 <img src="..." alt="...">
             </div>
-            <a class="text-body text-decoration-none" href="thread.php?th_id=' . $th_id . '">
+            <a class="text-body text-decoration-none" href="thread.php?th_id=' . (int) $th_id . '">
             <div class="flex-grow-1 ms-3">
-            <h5 class="mt-0">' . $th_name . ' <code> on ' . $cat . '</code></h5>
+            <h5 class="mt-0">' . h($th_name) . ' <code> on ' . h($cat) . '</code></h5>
             </div></div></a><hr>';
             }
 

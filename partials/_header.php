@@ -1,14 +1,12 @@
 <?php
-// Define base URL
-$base_url = "/php-playground/brainoverflow/";
+require_once __DIR__ . '/_helpers.php';
 
-// Get current script directory to check if it's a subdirectory
-$current_directory = basename(dirname($_SERVER['SCRIPT_NAME']));
-
-// If the current directory is not the main one, adjust the base URL accordingly
-if ($current_directory != 'brainoverflow') {
-    $base_url = "/php-playground/brainoverflow/"; // Adjust this if needed for subdirectories
-}
+// Resolve the application root from the current route so subdirectory installs work.
+$scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '/');
+$partialsPosition = strpos($scriptName, '/partials/');
+$base_url = $partialsPosition === false
+    ? rtrim(dirname($scriptName), '/') . '/'
+    : substr($scriptName, 0, $partialsPosition + 1);
 echo '<div class="container-fluid">
       <a class="navbar-brand" href="'.$base_url.'index.php">brainoverflow</a>
       <button
@@ -42,20 +40,20 @@ echo '<div class="container-fluid">
             <a class="nav-link disabled" href=""><--||--></a>
           </li>';
 
-          // Admin and User Logic
-          if((isset($_SESSION['admin']) && $_SESSION['logged'] == true)){
-            $admin = $_SESSION['name'];
+          // Role-specific navigation avoids treating an administrator session as a user session.
+          if (($_SESSION['role'] ?? '') === 'admin' && ($_SESSION['loggedin'] ?? false) === true) {
+            $name = $_SESSION['name'] ?? 'Admin';
               echo '<li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="'.$base_url.'user.php">Welcome <code>'.$name.'</code></a>
+              <a class="nav-link active" aria-current="page" href="'.$base_url.'partials/admin/panel/index.php">Welcome <code>'.h($name).'</code></a>
               </li>
               <li class="nav-item">
               <a class="nav-link" href="'.$base_url.'partials/admin/logout.php">Exit</a>
             </li>';
           } else {
-            if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
-              $name = $_SESSION['username'];
+            if (($_SESSION['role'] ?? '') === 'user' && ($_SESSION['loggedin'] ?? false) === true) {
+              $name = $_SESSION['username'] ?? 'User';
               echo '<li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="'.$base_url.'user.php">Welcome <code>'.$name.'</code></a>
+              <a class="nav-link active" aria-current="page" href="'.$base_url.'user.php">Welcome <code>'.h($name).'</code></a>
               </li>
               <li class="nav-item">
               <a class="nav-link" href="'.$base_url.'partials/user/logout.php">Exit</a>

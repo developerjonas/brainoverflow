@@ -1,22 +1,37 @@
 <?php
-session_start();
+require_once 'partials/_helpers.php';
+start_app_session();
 require 'partials/_redirect.php';
-?>
-<?php
 require 'partials/database/_connect.php';
-$method = $_SERVER['REQUEST_METHOD'];
-$cat_id = $_GET['cat_id'];
-if ($method == "POST") {
-    // INSERT THREAD INTO DATABASE...
-    $user_id = $_SESSION['sno'];
-    $th_title = $_POST['concern_title'];
-    $th_title = str_replace("<", "&lt;" , $th_title);
-    $th_title = str_replace(">", "&gt;" , $th_title);
-    $th_desc = $_POST['concern_desc'];
-    $th_desc = str_replace("<", "&lt;" , $th_desc);
-    $th_desc = str_replace(">", "&gt;" , $th_desc);
-    $insert = "INSERT INTO `threads` (`th_name`, `th_desc`, `th_ct_id`, `th_user_id`, `th_dt`) VALUES('$th_title', '$th_desc', '$cat_id', '$user_id', current_timestamp())";
-    $result = mysqli_query($conn, $insert);
+$cat_id = positive_int($_GET['cat_id'] ?? null);
+if ($cat_id === null) {
+    http_response_code(404);
+    exit('Category not found.');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (($_SESSION['role'] ?? '') !== 'user' || !isset($_SESSION['sno'])) {
+        http_response_code(403);
+        exit('Sign in with a user account to start a discussion.');
+    }
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        exit('Invalid form token.');
+    }
+
+    $th_title = $_POST['concern_title'] ?? '';
+    $th_desc = $_POST['concern_desc'] ?? '';
+    if (!is_string($th_title) || !is_string($th_desc) || trim($th_title) === '') {
+        http_response_code(400);
+        exit('A discussion title is required.');
+    }
+
+    $user_id = (int) $_SESSION['sno'];
+    $insert = mysqli_prepare($conn, 'INSERT INTO `threads` (`th_name`, `th_desc`, `th_ct_id`, `th_user_id`, `th_dt`) VALUES (?, ?, ?, ?, current_timestamp())');
+    mysqli_stmt_bind_param($insert, 'ssii', $th_title, $th_desc, $cat_id, $user_id);
+    mysqli_stmt_execute($insert);
+    header('Location: threadlist.php?cat_id=' . $cat_id);
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -141,8 +156,9 @@ if ($method == "POST") {
         <hr>
 
         <?php 
-        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true){
-            echo '<form action="'. $_SERVER["REQUEST_URI"] .'" method="POST">
+        if (($_SESSION['role'] ?? '') === 'user'){
+            echo '<form action="threadlist.php?cat_id=' . $cat_id . '" method="POST">
+            ' . csrf_field() . '
             <div class="mb-3">
                 <label for="concern_title" class="form-label">Concern</label>
                 <input type="text" class="form-control" id="concern_title" name="concern_title" placeholder="keep your concern short and crisp as possible">
@@ -163,9 +179,10 @@ if ($method == "POST") {
         <hr>
         <?php
 
-        $cat_id = $_GET['cat_id'];
-        $sql = "SELECT * FROM `threads` WHERE th_ct_id=$cat_id";
-        $results = mysqli_query($conn, $sql);
+        $threadsStatement = mysqli_prepare($conn, 'SELECT * FROM `threads` WHERE th_ct_id = ? ORDER BY th_dt DESC');
+        mysqli_stmt_bind_param($threadsStatement, 'i', $cat_id);
+        mysqli_stmt_execute($threadsStatement);
+        $results = mysqli_stmt_get_result($threadsStatement);
         $no_result = true;
 
         while ($row = mysqli_fetch_assoc($results)) {
@@ -173,10 +190,12 @@ if ($method == "POST") {
             $th_id = $row['th_id'];
             $th_name = $row['th_name'];
             $th_desc = $row['th_desc'];
-            $th_user_id = $row['th_user_id'];
+            $th_user_id = (int) $row['th_user_id'];
         
-            $sql_2 = "SELECT username FROM `users` WHERE sno=$th_user_id";
-            $result = mysqli_query($conn, $sql_2);
+            $userStatement = mysqli_prepare($conn, 'SELECT username FROM `users` WHERE sno = ?');
+            mysqli_stmt_bind_param($userStatement, 'i', $th_user_id);
+            mysqli_stmt_execute($userStatement);
+            $result = mysqli_stmt_get_result($userStatement);
             $row2 = mysqli_fetch_assoc($result);
         
             if ($row2) { // Check if the query returned a result
@@ -190,10 +209,10 @@ if ($method == "POST") {
                 <div class="flex-shrink-0 ">
                     <img src="..." alt="...">
                 </div>
-                <a class="text-body text-decoration-none" href="thread.php?th_id=' . $th_id . '">
+                <a class="text-body text-decoration-none" href="thread.php?th_id=' . (int) $th_id . '">
                     <div class="flex-grow-1 ms-3">
-                        <h5 class="mt-0">' . $th_name . ' by '. $username. '</h5>
-                        ' . $th_desc . '
+                        <h5 class="mt-0">' . h($th_name) . ' by '. h($username). '</h5>
+                        ' . h($th_desc) . '
                     </div>
                 </div>
             </a>

@@ -1,8 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . '/../_auth.php';
 
 // Check if the user is logged in
-if (!isset($_SESSION['username'])) {
+if (($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: login.php');
     exit();
 }
@@ -21,7 +21,7 @@ if (!isset($_SESSION['username'])) {
 <body>
     <div class="container">
         <div class="form-container">
-            <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+            <h2>Welcome, <?php echo h($_SESSION['name'] ?? 'Admin'); ?>!</h2>
             <p>You have successfully logged in.</p>
             <form action="logout.php" method="POST">
                 <button type="submit">Logout</button>

@@ -1,41 +1,25 @@
 <?php
+require_once __DIR__ . '/../../_auth.php';
 require '../../../../partials/database/_connect.php';
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 $method = $_SERVER['REQUEST_METHOD'];
-if ($method == "POST" && isset($_POST["id"])) {
-    $cat_id = $_POST["id"];
-    $name = mysqli_real_escape_string($conn, $_POST['name']);
-    $desc = mysqli_real_escape_string($conn, $_POST['desc']);
-
-    if ($cat_id > 0) {
-        $sql = "UPDATE `categories` SET `ct_name` = '$name', `ct_desc` = '$desc' WHERE ct_id = $cat_id";
-        $result = mysqli_query($conn, $sql);
-
-        if ($result) {
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                  <i class="bi bi-check-circle me-1"></i>
-                  Category Edited Successfully!
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>';
-            header('Location: ../categories.php');
-            exit(); // Ensure you exit after redirecting
-        } else {
-            die('<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <i class="bi bi-x-circle me-1"></i>
-                  Problem Editing Category! ' . mysqli_error($conn) . '
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>');
-        }
-    } else {
-        echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <i class="bi bi-x-circle me-1"></i>
-              Invalid Category ID!
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>';
-    }
+if ($method !== 'POST' || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Invalid form submission.');
 }
+
+$cat_id = positive_int($_POST['id'] ?? null);
+$name = $_POST['name'] ?? '';
+$desc = $_POST['desc'] ?? '';
+if ($cat_id === null || !is_string($name) || !is_string($desc) || trim($name) === '') {
+    http_response_code(400);
+    exit('Invalid category details.');
+}
+
+// Update category fields with bound values after validating the submitted identifier.
+$statement = mysqli_prepare($conn, 'UPDATE `categories` SET `ct_name` = ?, `ct_desc` = ? WHERE ct_id = ?');
+mysqli_stmt_bind_param($statement, 'ssi', $name, $desc, $cat_id);
+mysqli_stmt_execute($statement);
+header('Location: ../categories.php');
+exit();
 ?>

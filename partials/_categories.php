@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_helpers.php';
 echo '
 
 
@@ -14,10 +15,10 @@ include 'database/_connect.php';
 $sql  = "SELECT * FROM `categories`";
 $result = mysqli_query($conn, $sql);
 while ($row = mysqli_fetch_assoc($result)) {
-    $cat_id = $row['ct_id'];
+    $cat_id = (int) $row['ct_id'];
     echo '
            <li class="nav-item">
-            <a class="nav-link" href="threadlist.php?cat_id='.$cat_id.'">' . $row['ct_name'] . '</a>
+            <a class="nav-link" href="threadlist.php?cat_id='.$cat_id.'">' . h($row['ct_name']) . '</a>
            </li>
            ';
 }

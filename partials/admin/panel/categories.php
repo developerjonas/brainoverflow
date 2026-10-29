@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../_auth.php';
 ?>
 
 
@@ -78,12 +78,12 @@ session_start();
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
             <img src="assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-            <span class="d-none d-md-block dropdown-toggle ps-2">Welcome, <?php echo ($_SESSION['username']); ?>!</span>
+            <span class="d-none d-md-block dropdown-toggle ps-2">Welcome, <?php echo h($_SESSION['name'] ?? 'Admin'); ?>!</span>
           </a><!-- End Profile Iamge Icon -->
 
           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
             <li class="dropdown-header">
-              <h6><?php echo ($_SESSION['username']); ?></h6>
+              <h6><?php echo h($_SESSION['name'] ?? 'Admin'); ?></h6>
               <span>Admin</span>
             </li>
             <li>
@@ -91,7 +91,7 @@ session_start();
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="profile.php?id='<?php echo $_SESSION['sno']; ?>'">
+              <a class="dropdown-item d-flex align-items-center" href="profile.php?id=<?php echo (int) $_SESSION['sno']; ?>">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
               </a>
@@ -101,7 +101,7 @@ session_start();
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="profile.php?id='<?php echo $_SESSION['sno']; ?>'">
+              <a class="dropdown-item d-flex align-items-center" href="profile.php?id=<?php echo (int) $_SESSION['sno']; ?>">
                 <i class="bi bi-gear"></i>
                 <span>Account Settings</span>
               </a>
@@ -121,7 +121,7 @@ session_start();
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
+              <a class="dropdown-item d-flex align-items-center" href="../logout.php">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
               </a>
@@ -182,29 +182,29 @@ session_start();
       require '../../../partials/database/_connect.php';
       $method = $_SERVER['REQUEST_METHOD'];
       if ($method == "POST") {
-        // INSERT CATEGORY INTO DATABASE...
-        $name = $_POST['name'];
-        $name = str_replace('"', '\"', $name);
-        $name = str_replace("'", "\'", $name);
-        $desc = $_POST['desc'];
-        $desc = str_replace('"', '\"', $desc);
-        $desc = str_replace("'", "\'", $desc);
+        if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+          http_response_code(403);
+          exit('Invalid form token.');
+        }
+        $name = $_POST['name'] ?? '';
+        $desc = $_POST['desc'] ?? '';
+        if (!is_string($name) || !is_string($desc) || trim($name) === '') {
+          http_response_code(400);
+          exit('A category name is required.');
+        }
 
-        $insert = "INSERT INTO `categories` (`ct_name`, `ct_desc`, `ct_dt`) VALUES('$name', '$desc', current_timestamp())";
-        // echo $insert;
-        $result = mysqli_query($conn, $insert);
-        if (mysqli_query($conn, $insert)) {
+        // Prepare once and execute once to prevent SQL injection and duplicate inserts.
+        $insert = mysqli_prepare($conn, 'INSERT INTO `categories` (`ct_name`, `ct_desc`, `ct_dt`) VALUES (?, ?, current_timestamp())');
+        mysqli_stmt_bind_param($insert, 'ss', $name, $desc);
+        mysqli_stmt_execute($insert);
+        if (mysqli_stmt_affected_rows($insert) === 1) {
           echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle me-1"></i>
                 Category Inserted Successfully!
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>';
         } else {
-          echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle me-1"></i>
-                Problem Inserting Category!
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>' . mysqli_error($conn);
+          throw new RuntimeException('Category insert did not affect exactly one row.');
         }
       }
       ?>
@@ -214,6 +214,7 @@ session_start();
 
           <!-- Floating Labels Form -->
           <form class="row g-3" action="categories.php" method="POST">
+            <?php echo csrf_field(); ?>
             <div class="col-md-12">
               <div class="form-floating">
                 <input type="text" name="name" class="form-control" id="floatingName" placeholder="Category Name">
@@ -253,10 +254,14 @@ session_start();
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">' . $cat_name . '</h5>
-              <p>' . $cat_desc . '</p>
-              <a href="categories/edit.php?cat_id=' . $cat_id . '" class="btn btn-info rounded-pill">Edit</a>
-              <a href="categories/delete_process.php?cat_id=' . $cat_id . '" class="btn btn-danger rounded-pill">Delete</a>
+              <h5 class="card-title">' . h($cat_name) . '</h5>
+              <p>' . h($cat_desc) . '</p>
+              <a href="categories/edit.php?cat_id=' . (int) $cat_id . '" class="btn btn-info rounded-pill">Edit</a>
+              <form action="categories/delete_process.php" method="POST" class="d-inline">
+                ' . csrf_field() . '
+                <input type="hidden" name="cat_id" value="' . (int) $cat_id . '">
+                <button type="submit" class="btn btn-danger rounded-pill">Delete</button>
+              </form>
             </div>
             
           </div>

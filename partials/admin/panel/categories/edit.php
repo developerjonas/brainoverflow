@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../../_auth.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -257,7 +260,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
+                            <a class="dropdown-item d-flex align-items-center" href="../../logout.php">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign Out</span>
                             </a>
@@ -320,44 +323,34 @@
             <?php
             require '../../../../partials/database/_connect.php';
 
-            // Make sure to check if cat_id is set before querying
-            if (isset($_GET["cat_id"])) {
-                $cat_id = $_GET["cat_id"];
-                $sqli = "SELECT * FROM categories WHERE ct_id = $cat_id";
-                $results = mysqli_query($conn, $sqli);
-
-                if ($results) {
-                    $row = mysqli_fetch_assoc($results);
-                    $cat_name = $row['ct_name'];
-                    $cat_desc = $row['ct_desc'];
-                } else {
-                    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                          <i class="bi bi-x-circle me-1"></i>
-                          Problem fetching category! ' . mysqli_error($conn) . '
-                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>';
-                }
-            } else {
-                echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                      <i class="bi bi-x-circle me-1"></i>
-                      Category ID not provided!
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>';
+            $cat_id = positive_int($_GET['cat_id'] ?? null);
+            if ($cat_id === null) {
+                http_response_code(404);
+                exit('Category not found.');
             }
-
-
+            $categoryStatement = mysqli_prepare($conn, 'SELECT ct_name, ct_desc FROM `categories` WHERE ct_id = ?');
+            mysqli_stmt_bind_param($categoryStatement, 'i', $cat_id);
+            mysqli_stmt_execute($categoryStatement);
+            $category = mysqli_fetch_assoc(mysqli_stmt_get_result($categoryStatement));
+            if (!$category) {
+                http_response_code(404);
+                exit('Category not found.');
+            }
+            $cat_name = $category['ct_name'];
+            $cat_desc = $category['ct_desc'];
 
             ?>
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Edit Category - <?php echo $cat_name; ?></h5>
+                    <h5 class="card-title">Edit Category - <?php echo h($cat_name); ?></h5>
 
                     <!-- Floating Labels Form -->
                     <form class="row g-3" action="edit_process.php" method="POST">
-                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['cat_id']); ?>">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="id" value="<?php echo (int) $cat_id; ?>">
                         <div class="col-md-12">
                             <div class="form-floating">
-                                <input type="text" name="name" class="form-control" id="floatingName"
+                                <input type="text" name="name" class="form-control" id="floatingName" value="<?php echo h($cat_name); ?>" required
                                     placeholder="Category Name">
                                 <label for="floatingName">Name</label>
                             </div>
@@ -366,7 +359,7 @@
                         <div class="col-12">
                             <div class="form-floating">
                                 <textarea class="form-control" name="desc" placeholder="Category Description"
-                                    id="floatingTextarea" style="height: 100px;"></textarea>
+                                    id="floatingTextarea" style="height: 100px;"><?php echo h($cat_desc); ?></textarea>
                                 <label for="floatingTextarea">Description</label>
                             </div>
                         </div>

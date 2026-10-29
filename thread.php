@@ -1,20 +1,45 @@
 <?php
-session_start();
+require_once 'partials/_helpers.php';
+start_app_session();
 require 'partials/database/_connect.php';
-?>
-<?php
-$method = $_SERVER['REQUEST_METHOD'];
-if ($method == "POST") {
-    // INSERT COMMENT INTO DATABASE...
-    $th_id = $_GET['th_id'];
 
-    $user_id = '0';
-    $cmt_cnt = $_POST['cmt_cnt'];
-    $cmt_cnt = str_replace("<", "&lt;", $cmt_cnt);
-    $cmt_cnt = str_replace(">", "&gt;", $cmt_cnt);
-    $sno = $_SESSION['sno'];
-    $insert = "INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt` ) VALUES('$cmt_cnt', '$sno', '$th_id', current_timestamp())";
-    $result = mysqli_query($conn, $insert);
+// Validate the route identifier before it reaches any query.
+$th_id = positive_int($_GET['th_id'] ?? null);
+if ($th_id === null) {
+    http_response_code(404);
+    exit('Thread not found.');
+}
+
+$threadStatement = mysqli_prepare($conn, 'SELECT * FROM `threads` WHERE th_id = ?');
+mysqli_stmt_bind_param($threadStatement, 'i', $th_id);
+mysqli_stmt_execute($threadStatement);
+$thread = mysqli_fetch_assoc(mysqli_stmt_get_result($threadStatement));
+if (!$thread) {
+    http_response_code(404);
+    exit('Thread not found.');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (($_SESSION['role'] ?? '') !== 'user' || !isset($_SESSION['sno'])) {
+        http_response_code(403);
+        exit('Sign in with a user account to comment.');
+    }
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        exit('Invalid form token.');
+    }
+
+    $cmt_cnt = $_POST['cmt_cnt'] ?? '';
+    if (!is_string($cmt_cnt) || trim($cmt_cnt) === '') {
+        http_response_code(400);
+        exit('A comment is required.');
+    }
+    $userId = (int) $_SESSION['sno'];
+    $insert = mysqli_prepare($conn, 'INSERT INTO `comments` (`cmt_cnt`, `cmt_user_id`, `th_id`, `cmt_dt`) VALUES (?, ?, ?, current_timestamp())');
+    mysqli_stmt_bind_param($insert, 'sii', $cmt_cnt, $userId, $th_id);
+    mysqli_stmt_execute($insert);
+    header('Location: thread.php?th_id=' . $th_id);
+    exit();
 }
 ?>
 
@@ -115,24 +140,20 @@ if ($method == "POST") {
     <main class="container">
 
         <?php
-        $th_id = $_GET['th_id'];
-
-        $sql = "SELECT * FROM `threads` WHERE th_id=$th_id";
-        $results = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_assoc($results);
-        $th_title = $row['th_name'];
-        $th_desc = $row['th_desc'];
-        $th_user_id = $row['th_user_id'];
-        $sql_03 = "SELECT username FROM `users` WHERE sno=$th_user_id";
-        $result = mysqli_query($conn, $sql_03);
-        $row_03 = mysqli_fetch_assoc($result);
-        $th_user = $row_03['username'];
+        $th_title = $thread['th_name'];
+        $th_desc = $thread['th_desc'];
+        $th_user_id = (int) $thread['th_user_id'];
+        $authorStatement = mysqli_prepare($conn, 'SELECT username FROM `users` WHERE sno = ?');
+        mysqli_stmt_bind_param($authorStatement, 'i', $th_user_id);
+        mysqli_stmt_execute($authorStatement);
+        $row_03 = mysqli_fetch_assoc(mysqli_stmt_get_result($authorStatement));
+        $th_user = $row_03['username'] ?? 'Unknown User';
 
         echo ' <div class="d-flex align-items-center p-3 my-3 text-white bg-dark rounded shadow-sm">
             <img class="me-3" src="/docs/5.3/assets/brand/bootstrap-logo-white.svg" alt="" width="48" height="38">
             <div class="lh-1">
-                <h1 class="h6 mb-0 text-white lh-1">' . $th_title . ' by ' . $th_user . '</h1>
-                <small>' . $th_desc . '</small>
+                <h1 class="h6 mb-0 text-white lh-1">' . h($th_title) . ' by ' . h($th_user) . '</h1>
+                <small>' . h($th_desc) . '</small>
             </div>
         </div>'
             ?>
@@ -140,8 +161,9 @@ if ($method == "POST") {
         <hr>
 
         <?php
-        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-            echo '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">
+        if (($_SESSION['role'] ?? '') === 'user') {
+            echo '<form action="thread.php?th_id=' . $th_id . '" method="POST">
+        ' . csrf_field() . '
         <div class="mb-3">
             <label for="concern_desc" class="form-label">Comment</label>
             <textarea class="form-control" id="cmt_cnt" name="cmt_cnt" rows="2"></textarea>
@@ -155,18 +177,22 @@ if ($method == "POST") {
 
         <!-- Fetching comments -->
         <?php
-        $sql = "SELECT * FROM `comments` WHERE th_id=$th_id";
-        $results = mysqli_query($conn, $sql);
+        $commentsStatement = mysqli_prepare($conn, 'SELECT * FROM `comments` WHERE th_id = ? ORDER BY cmt_dt');
+        mysqli_stmt_bind_param($commentsStatement, 'i', $th_id);
+        mysqli_stmt_execute($commentsStatement);
+        $results = mysqli_stmt_get_result($commentsStatement);
         $no_result = true;
 
         while ($row = mysqli_fetch_assoc($results)) {
             $no_result = false;
             $cmt_cnt = $row['cmt_cnt'];
             $cmt_dt = $row['cmt_dt'];
-            $cmt_user_id = $row['cmt_user_id'];
+            $cmt_user_id = (int) $row['cmt_user_id'];
 
-            $sql_2 = "SELECT username FROM `users` WHERE sno=$cmt_user_id";
-            $result = mysqli_query($conn, $sql_2);
+            $commentAuthorStatement = mysqli_prepare($conn, 'SELECT username FROM `users` WHERE sno = ?');
+            mysqli_stmt_bind_param($commentAuthorStatement, 'i', $cmt_user_id);
+            mysqli_stmt_execute($commentAuthorStatement);
+            $result = mysqli_stmt_get_result($commentAuthorStatement);
             if ($result && mysqli_num_rows($result) > 0) {
                 $row2 = mysqli_fetch_assoc($result);
                 $username = $row2['username'];
@@ -176,17 +202,18 @@ if ($method == "POST") {
 
 
 
-            if ($is_owner = (isset($_SESSION['sno']) && $_SESSION['sno'] == $cmt_user_id)) {
+            $is_owner = (($_SESSION['role'] ?? '') === 'user' && isset($_SESSION['sno']) && (int) $_SESSION['sno'] === $cmt_user_id);
+            if ($is_owner) {
                 echo '<div class="d-flex text-body-secondary pt-3">
                 <p class="pb-3 mb-0 small lh-sm border-bottom">
-                    <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
-                    ' . $cmt_cnt . '
+                    <strong class="d-block text-gray-dark">' . h($username) . ' at ' . h($cmt_dt) . '</strong>
+                    ' . h($cmt_cnt) . '
                 </p>';
             } else {
                 echo '<div class="d-flex text-body-secondary pt-3">
                         <p class="pb-3 mb-0 small lh-sm border-bottom">
-                            <strong class="d-block text-gray-dark">' . $username . ' at ' . $cmt_dt . '</strong>
-                            ' . $cmt_cnt . '
+                            <strong class="d-block text-gray-dark">' . h($username) . ' at ' . h($cmt_dt) . '</strong>
+                            ' . h($cmt_cnt) . '
                         </p>
                         </div>';
             }
@@ -195,11 +222,12 @@ if ($method == "POST") {
             if ($is_owner) {
                 echo '<div class="ms-auto">
                     <form method="GET" action="actions/edit_comment.php" class="d-inline">
-                        <input type="hidden" name="cmt_id" value="' . $row['cmt_id'] . '">
+                        <input type="hidden" name="cmt_id" value="' . (int) $row['cmt_id'] . '">
                         <button type="submit" class="btn btn-outline-success btn-sm">Edit</button>
                     </form>
-                    <form method="GET" action="actions/delete_comment.php" class="d-inline">
-                        <input type="hidden" name="cmt_id" value="' . $row['cmt_id'] . '">
+                    <form method="POST" action="actions/delete_comment.php" class="d-inline">
+                        ' . csrf_field() . '
+                        <input type="hidden" name="cmt_id" value="' . (int) $row['cmt_id'] . '">
                         <button type="submit" class="btn btn-outline-info btn-sm">Delete</button>
                     </form>
                   </div>';

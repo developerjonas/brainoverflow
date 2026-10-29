@@ -1,32 +1,57 @@
 <?php
 
-$alert = "false";
+require_once __DIR__ . '/../_helpers.php';
+start_app_session();
+
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     include '../database/_connect.php';
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $c_pass = $_POST['password'];
-    $pass = $_POST['pass'];
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        exit('Invalid form token.');
+    }
+    $username = $_POST['username'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $c_pass = $_POST['password'] ?? '';
+    $pass = $_POST['pass'] ?? '';
+    if (
+        !is_string($username)
+        || !is_string($email)
+        || !is_string($c_pass)
+        || !is_string($pass)
+        || trim($username) === ''
+        || strlen($username) > 64
+        || strlen($email) > 64
+        || $pass === ''
+        || strlen($pass) > 72
+        || !filter_var($email, FILTER_VALIDATE_EMAIL)
+    ) {
+        http_response_code(400);
+        exit('Invalid signup details.');
+    }
 
-    // check whether this email or username already exists
-
-    $already_exists = "SELECT * FROM `users` where user_email = '$email' AND username = '$username'";
-    $ae_result = mysqli_query($conn, $already_exists);
+    // Reject either duplicate identifier before creating the account.
+    $already_exists = mysqli_prepare($conn, 'SELECT 1 FROM `users` WHERE user_email = ? OR username = ? LIMIT 1');
+    mysqli_stmt_bind_param($already_exists, 'ss', $email, $username);
+    mysqli_stmt_execute($already_exists);
+    $ae_result = mysqli_stmt_get_result($already_exists);
     $num_rows = mysqli_num_rows($ae_result);
     if ($num_rows > 0) {
-        $alert = "Email already in use";
+        http_response_code(409);
+        exit('That email address or username is already in use.');
     } else {
-        if ($pass = $c_pass) {
+        if ($pass === $c_pass) {
             $hash = password_hash($c_pass, PASSWORD_BCRYPT);
-            $sql = "INSERT INTO `users` (`user_email`, `username`, `user_pass`, `user_dt`) VALUES ('$email','$username','$hash', current_timestamp())";
-            $result = mysqli_query($conn, $sql);
-            if ($result) {
-                $alert = true;
-                header("Location: login.php?signupsuccess=true");
-                exit();
+            $stmt = mysqli_prepare($conn, 'INSERT INTO `users` (`user_email`, `username`, `user_pass`, `user_dt`) VALUES (?, ?, ?, current_timestamp())');
+            mysqli_stmt_bind_param($stmt, 'sss', $email, $username, $hash);
+            mysqli_stmt_execute($stmt);
+            if (mysqli_stmt_affected_rows($stmt) !== 1) {
+                throw new RuntimeException('User signup did not create exactly one account.');
             }
+            header("Location: login.php?signupsuccess=true");
+            exit();
         } else {
-            echo "<script>alert('Must be same password');</script>";
+            http_response_code(400);
+            exit('Passwords do not match.');
         }
     }
 }
@@ -50,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         <div class="form-container">
             <h2>Signup</h2>
             <form action="signup.php" method="POST" class="signup-form">
-                <input type="email" name="email" placeholder="Email" require>
+                <?php echo csrf_field(); ?>
+                <input type="email" name="email" placeholder="Email" required>
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="pass" placeholder="Password" required>
                 <input type="password" name="password" placeholder="Confirm Password" required>
